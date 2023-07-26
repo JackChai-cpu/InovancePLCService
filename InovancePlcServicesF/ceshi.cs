@@ -15,8 +15,8 @@ namespace InovancePLCService
             //plc = new Plc(CpuType.S71200, "127.0.0.1", 0, 1);
             //plc.Open();
             //plc.OpenAsync();
-            //plc.Read();
-            //plc.ReadAsync();
+            plc.Read();
+            plc.ReadAsync();
             //plc.ReadBytes(DataType.);
             //plc.WriteBytes();
             //plc.WriteBytesAsync()

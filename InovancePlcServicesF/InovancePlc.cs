@@ -1,5 +1,4 @@
-﻿using HslCommunication;
-using InovancePLCService;
+﻿using InovancePLCService;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
