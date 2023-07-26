@@ -1,10 +1,11 @@
 ﻿using HslCommunication;
-using InovancePlcServicesF;
+using InovancePLCService;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace InovancePlcServices
+namespace InovancePLCService
 {
     public class InovancePlc
     {
@@ -63,15 +64,21 @@ namespace InovancePlcServices
         /// <param name="startByteAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual object? PlcReadBytes(int startByteAdr, int count)
+        public virtual object PlcReadBytes(int startByteAdr, int count)
         {
             if (!IsConnect)
             {
                 PlcOpen();
             }
 
-            var beginresult = new byte[count + 1];
-            int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, count, beginresult, nNetId);
+            int countindex = (int)(count / 2 + 0.5);
+            //最多读取123个字或者246个字节
+            if (count >= 246)
+            {
+                countindex = 123;
+            }
+            var beginresult = new byte[count];
+            int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, countindex, beginresult, nNetId);
             if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
             else if (nRet == 1) { }
             else if (nRet == 1) { }
@@ -79,47 +86,23 @@ namespace InovancePlcServices
             Array.Copy(beginresult, result, count);
             return result;
 
-        }
-
-        public virtual async Task<object?> PlcReadBytesAsync(int startByteAdr, int count)
-        {
-            if (!IsConnect)
-            {
-                PlcOpen();
-            }
-            var beginresult = new byte[count + 1];
-
-            // 模拟耗时操作
-            int nRet = await new Task<int>(() => StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, count, beginresult, nNetId));
-
-            if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
-            else if (nRet == 1) { }
-            else if (nRet == 1) { }
-            var result = new byte[count];
-            Array.Copy(beginresult, result, count);
-            return result;
-        }
-
-        private async Task<int> ReadBytesAsync(SoftElemType type, int startByteAdr, int count, byte[] beginresult)
-        {
-            return await new Task<int>(() => StandardModbusApi.H5u_Read_Soft_Elem(type, startByteAdr, count, beginresult, nNetId));
         }
 
         /// <summary>
-        /// 返回一个16位的有符号整数
+        /// 同步获取一个16位的有符号整数
         /// </summary>
         /// <param name="dataType"></param>
         /// <param name="startByteAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual object? PlcReadWords(int startByteAdr, int count)
+        public virtual object PlcReadWords(int startAdr, int count)
         {
             if (!IsConnect)
             {
                 PlcOpen();
             }
             var result = new byte[count * 2];
-            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, count, result, nNetId);
+            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, nNetId);
             var wordresult = new int[count];
             for (int i = 0; i < count; i++)
             {
@@ -128,19 +111,258 @@ namespace InovancePlcServices
                 databuf[1] = result[i * 2 + 1];
                 wordresult[i] = BitConverter.ToInt16(databuf, 0);
             }
-            return result;
+            return wordresult;
         }
 
-        public virtual bool PlcWrite()
+        /// <summary>
+        /// 读取有符号的32位整形数据
+        /// </summary>
+        /// <param name="startAdr"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public virtual object PlcReadDoublewords(int startAdr,int count)
         {
-            return true;
+            if (!IsConnect)
+            {
+                PlcOpen();
+            }
+            var result = new byte[count * 4];
+            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count*2, result, nNetId);
+            var wordresult = new Int32[count];
+            for (int i = 0; i < count; i++)
+            {
+                byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                databuf[0] = result[i * 4];
+                databuf[1] = result[i * 4 + 1];
+                databuf[2] = result[i * 4 + 2];
+                databuf[3] = result[i * 4 + 3];
+                wordresult[i] = BitConverter.ToInt32(databuf, 0);
+            }
+            return wordresult;
+        }
+
+        /// <summary>
+        /// 读取一个浮点数
+        /// </summary>
+        /// <param name="startAdr"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public virtual object PlcReadFloat(int startAdr, int count)
+        {
+            if (!IsConnect)
+            {
+                PlcOpen();
+            }
+            var result = new byte[count * 4];
+            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count*2, result, nNetId);
+            var wordresult = new float[count];
+            for (int i = 0; i < count; i++)
+            {
+                byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                databuf[0] = result[i * 4];
+                databuf[1] = result[i * 4 + 1];
+                databuf[2] = result[i * 4 + 2];
+                databuf[3] = result[i * 4 + 3];
+                wordresult[i] = BitConverter.ToSingle(databuf, 0);
+            }
+            return wordresult;
+        }
+        
+        /// <summary>
+        /// 读取byte类型数据（10进制）
+        /// </summary>
+        /// <param name="startByteAdr"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public virtual async Task<System.Byte[]> PlcReadBytesAsync(int startAdr, int count)
+        {
+            return  await Task.Run(() =>
+                        {
+                            if (!IsConnect)
+                            {
+                                PlcOpen();
+                            }
+                            int countindex = (int)(count / 2 + 0.5);
+                            //最多读取123个字或者246个字节
+                            if (count >= 246)
+                            {
+                                countindex = 123;
+                            }
+                            var beginresult = new byte[count];
+                            Thread.Sleep(3000);
+                            int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, countindex, beginresult, NNetId);
+                            //if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
+                            //else if (nRet == 1) { }
+                            //else if (nRet == 1) { }
+                            var result = new byte[count];
+                            Array.Copy(beginresult, result, count);
+
+                            return result;
+                        });
+
+        }
+        /// <summary>
+        /// 异步获取一个16位有符号的整数（10进制）
+        /// </summary>
+        /// <param name="startByteAdr"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public virtual async Task<object> PlcReadWordsAsync(int startAdr, int count)
+        {
+            if (!IsConnect)
+            {
+                PlcOpen();
+            }
+            var beginresult = new byte[count *2];
+
+            // 进行异步读取
+            int nRet = await new Task<int>(() => StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, beginresult, nNetId));
+
+            if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
+            else if (nRet == 1) { }
+            else if (nRet == 1) { }
+            var wordresult = new int[count];
+            for (int i = 0; i < count; i++)
+            {
+                byte[] databuf = new byte[2] { 0, 0 };
+                databuf[0] = beginresult[i * 2];
+                databuf[1] = beginresult[i * 2 + 1];
+                wordresult[i] = BitConverter.ToInt16(databuf, 0);
+            }
+            return wordresult;
         }
 
 
+        /// <summary>
+        /// 获取一个双字节类型的有符号整数
+        /// </summary>
+        /// <param name="startAdr"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public virtual async Task<object> PlcReadDoubleWordsAsync(int startAdr, int count)
+        {
+            return await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                if (count >= 61)
+                {
+                    count = 61;
+                }
+                var result = new byte[count * 4];
+                StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count * 2, result, NNetId);
+                var wordresult = new Int32[count];
+                for (int i = 0; i < count; i++)
+                {
+                    byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                    databuf[0] = result[i * 4];
+                    databuf[1] = result[i * 4 + 1];
+                    databuf[2] = result[i * 4 + 2];
+                    databuf[3] = result[i * 4 + 3];
+                    wordresult[i] = BitConverter.ToInt32(databuf, 0);
+                }
+                return wordresult;
+            });
+        }
 
+        /// <summary>
+        /// 获取一个浮点型数
+        /// </summary>
+        /// <param name="startAdr"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public virtual async Task<object> PlcReadFloatsAsync(int startAdr, int count)
+        {
+            return await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                if (count >= 61)
+                {
+                    count = 61;
+                }
+                var result = new byte[count * 4];
+                StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count * 2, result, NNetId);
+                var wordresult = new float[count];
+                for (int i = 0; i < count; i++)
+                {
+                    byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                    databuf[0] = result[i * 4];
+                    databuf[1] = result[i * 4 + 1];
+                    databuf[2] = result[i * 4 + 2];
+                    databuf[3] = result[i * 4 + 3];
+                    wordresult[i] = BitConverter.ToSingle(databuf, 0);
+                }
+                return wordresult;
+            });
+        }
 
+        public virtual void PlcWriteBytes(int startAdr, byte[] value)
+        {
+            
+        }
 
+        /// <summary>
+        /// 写一个字的数据，10进制
+        /// </summary>
+        /// <param name="startAdr"></param>
+        /// <param name="value"></param>
+        public virtual void PlcWriteWords(int startAdr, short[] value)
+        {
+            if (IsConnect)
+            {
+                PlcOpen();
+            }
+            int ncount = value.Length;
+            byte[] pBuf = new byte[ncount * 2];
 
+            for (int i = 0; i < ncount; i++)
+            {
+                byte[] dataBuf = BitConverter.GetBytes(value[i]);
+                pBuf[2 * i] = dataBuf[0];
+                pBuf[2 * i + 1] = dataBuf[1];
+            }
+            int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, pBuf, NNetId);
+            if (nRet == 0) { }
+        }
+
+        /// <summary>
+        /// 写入双字，10进制
+        /// </summary>
+        /// <param name="startAdr"></param>
+        /// <param name="value"></param>
+        public virtual void PlcWriteDoubleWords(int startAdr, int[] value)
+        {
+
+        }
+
+        public virtual void PlcWriteFloats(int startAdr, float[] value)
+        {
+
+        }
+
+        public virtual async Task PlcWriteBytesAsync(int startAdr, byte[] value)
+        {
+
+        }
+
+        public virtual async Task PlcWriteWordsAsync(int startAdr, byte[] value)
+        {
+
+        }
+        public virtual async Task PlcWriteDoubleWordsAsync(int startAdr, byte[] value)
+        {
+
+        }
+
+        public virtual async Task PlcWriteFloatsAsync(int startAdr, byte[] value)
+        {
+
+        }
 
         public string ByteArrayTo2Base(Byte[] bytes)
         {

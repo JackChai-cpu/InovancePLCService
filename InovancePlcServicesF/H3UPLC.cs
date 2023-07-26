@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InovancePlcServices
+namespace InovancePLCService
 {
     public class H3UPLC : InovancePlc
     {

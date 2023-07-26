@@ -7,8 +7,8 @@
     <ProjectGuid>{508F7C22-B498-4913-ADC1-0DA975A72E53}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InovancePlcServicesF</RootNamespace>
-    <AssemblyName>InovancePlcServicesF</AssemblyName>
+    <RootNamespace>InovancePLCService</RootNamespace>
+    <AssemblyName>InovancePLCService</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
