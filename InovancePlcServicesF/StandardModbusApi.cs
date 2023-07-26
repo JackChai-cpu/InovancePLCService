@@ -20,8 +20,22 @@ namespace InovancePLCService
         [DllImport("StandardModbusApi.dll", EntryPoint = "Init_ETH_String", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Init_ETH_String(string sIpAddr, int nNetId = 0, int IpPort = 502);
 
+        /// <summary>
+        /// 退出网络连接
+        /// </summary>
+        /// <param name="nNetId"></param>
+        /// <returns></returns>
         [DllImport("StandardModbusApi.dll", EntryPoint = "Exit_ETH", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Exit_ETH(int nNetId = 0);
+
+        ///// <summary>
+        ///// 检查网络是否连接
+        ///// </summary>
+        ///// <param name="nNetId"></param>
+        ///// <returns></returns>
+        //[DllImport("StandardModbusApi.dll", EntryPoint = "IS_ETH_Online", CallingConvention = CallingConvention.Cdecl)]
+        //public static extern bool IS_ETH_Online(int nNetId = 0);
+
 
         [DllImport("StandardModbusApi.dll", EntryPoint = "Am600_Read_Soft_Elem", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Am600_Read_Soft_Elem(SoftElemType eType, int nStartAddr, int nCount, byte[] pValue, int nNetId = 0);
@@ -98,13 +112,13 @@ namespace InovancePLCService
 
     public enum Errcode
     {
-        ER_READ_WRITE_FAIL = 0,   //读写失败
-        ER_READ_WRITE_SUCCEED = 1,  //读写成功
-        ER_NOT_CONNECT = 2,  //未连接
-        ER_ELEM_TYPE_WRONG = 3,  //元件类型错误
-        ER_ELEM_ADDR_OVER = 4,  //元件地址溢出
-        ER_ELEM_COUNT_OVER = 5,  //元件个数超限
-        ER_COMM_EXCEPT = 6,  //通讯异常
+        ErreadFail = 0,   //读写失败
+        //ER_READ_WRITE_SUCCEED = 1,  //读写成功
+        ErrNotConnect = 2,  //未连接
+        ErrElemTypeWrong=3, //元件类型错误
+        ErrElemAddrOver=4,//元件地址溢出
+        ErrElemCountOver=5, //元件个数超限
+        ErrCommExcept=6, //通讯异常
     }
 
 }

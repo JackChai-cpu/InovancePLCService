@@ -78,7 +78,7 @@ namespace InovancePLCService
             }
             var beginresult = new byte[count];
             int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, countindex, beginresult, nNetId);
-            if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
+            if (nRet == 1) { }
             else if (nRet == 1) { }
             else if (nRet == 1) { }
             var result = new byte[count];
@@ -217,7 +217,7 @@ namespace InovancePLCService
             // 进行异步读取
             int nRet = await new Task<int>(() => StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, beginresult, nNetId));
 
-            if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
+            if (nRet == 1) { }
             else if (nRet == 1) { }
             else if (nRet == 1) { }
             var wordresult = new int[count];
@@ -346,21 +346,109 @@ namespace InovancePLCService
 
         public virtual async Task PlcWriteBytesAsync(int startAdr, byte[] value)
         {
+            await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                int ncount = 1;
+                int nRet = 0;
+                if (0 == value.Length % 2)
+                {
+                    ncount = value.Length / 2;
+                    nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, value, NNetId);
+                }
+                else
+                {
+                    byte[] newbyte = new byte[value.Length + 1];
+                    ncount = (int)((double)value.Length / 2 + 0.5);
+                    byte[] nRets = (byte[])this.PlcReadBytes(startAdr + ncount - 1, 2);
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        newbyte[i] = value[i];
+                    }
+                    newbyte[value.Length] = nRets[1];
 
+                    nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, newbyte, NNetId);
+                }
+
+                if (nRet == 0) { }
+
+            });
         }
 
         public virtual async Task PlcWriteWordsAsync(int startAdr, byte[] value)
         {
+            await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                int ncount = value.Length;
+                byte[] pBuf = new byte[ncount * 2];
 
+                for (int i = 0; i < ncount; i++)
+                {
+                    byte[] dataBuf = BitConverter.GetBytes(value[i]);
+                    pBuf[2 * i] = dataBuf[0];
+                    pBuf[2 * i + 1] = dataBuf[1];
+                }
+                int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, pBuf, NNetId);
+                if (nRet == 0) { }
+
+            });
         }
+
         public virtual async Task PlcWriteDoubleWordsAsync(int startAdr, byte[] value)
         {
+            await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                int ncount = value.Length;
+                byte[] pBuf = new byte[ncount * 4];
 
+                for (int i = 0; i < ncount; i++)
+                {
+                    byte[] dataBuf = BitConverter.GetBytes(value[i]);
+                    pBuf[4 * i] = dataBuf[0];
+                    pBuf[4 * i + 1] = dataBuf[1];
+                    pBuf[4 * i + 2] = dataBuf[2];
+                    pBuf[4 * i + 3] = dataBuf[3];
+                }
+                int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount * 2, pBuf, NNetId);
+                if (nRet == 0) { }
+
+            });
         }
 
         public virtual async Task PlcWriteFloatsAsync(int startAdr, byte[] value)
         {
+            await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                int ncount = value.Length;
+                byte[] pBuf = new byte[ncount * 4];
 
+                for (int i = 0; i < ncount; i++)
+                {
+                    byte[] dataBuf = BitConverter.GetBytes(value[i]);
+                    pBuf[4 * i] = dataBuf[0];
+                    pBuf[4 * i + 1] = dataBuf[1];
+                    pBuf[4 * i + 2] = dataBuf[2];
+                    pBuf[4 * i + 3] = dataBuf[3];
+                }
+                int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount * 2, pBuf, NNetId);
+                if (nRet == 0) { }
+
+            });
         }
 
         public string ByteArrayTo2Base(Byte[] bytes)

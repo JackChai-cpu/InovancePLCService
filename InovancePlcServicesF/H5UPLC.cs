@@ -31,7 +31,7 @@ namespace InovancePLCService
             }            
             var beginresult = new byte[count];
             int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, countindex, beginresult, NNetId);
-            if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
+            if (nRet == 1) { }
             else if (nRet == 1) { }
             else if (nRet == 1) { }
             var result = new byte[count];
@@ -50,16 +50,44 @@ namespace InovancePLCService
                 count = 123;
             }
             var result = new byte[count * 2];
-            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, NNetId);
-            var wordresult = new int[count];
-            for (int i = 0; i < count; i++)
+            int nget=StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, NNetId);
+            if (nget==1)
             {
-                byte[] databuf = new byte[2] { 0, 0 };
-                databuf[0] = result[i * 2];
-                databuf[1] = result[i * 2 + 1];
-                wordresult[i] = BitConverter.ToInt16(databuf, 0);
+                var wordresult = new int[count];
+                for (int i = 0; i < count; i++)
+                {
+                    byte[] databuf = new byte[2] { 0, 0 };
+                    databuf[0] = result[i * 2];
+                    databuf[1] = result[i * 2 + 1];
+                    wordresult[i] = BitConverter.ToInt16(databuf, 0);
+                }
+                return wordresult;
             }
-            return wordresult;
+            else if(nget==2)
+            {
+                throw new PLCExcpetion(Errcode.ErrNotConnect,"未连接");
+            }
+            else if(nget==3)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemTypeWrong, "元件类型错误");
+            }
+            else if (nget == 4)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemAddrOver, "元件地址溢出");
+            }
+            else if (nget == 5)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemCountOver, "元件个数超限");
+            }
+            else if (nget == 6)
+            {
+                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");
+            }
+            else
+            {
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+            }
+
         }
 
         /// <summary>
