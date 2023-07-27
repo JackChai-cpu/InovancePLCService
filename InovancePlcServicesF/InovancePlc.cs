@@ -62,6 +62,7 @@ namespace InovancePLCService
             return true;
         }
 
+        
         /// <summary>
         /// 返回的值位每个byte的十进制数，需要转换为其他,需要自行转换
         /// </summary>
@@ -172,7 +173,11 @@ namespace InovancePLCService
             }
             return wordresult;
         }
-        
+
+        public virtual async Task< bool> PlcReadBitAsync(int Addear, int index)
+        {
+            return true;
+        }
         /// <summary>
         /// 读取byte类型数据（10进制）
         /// </summary>
@@ -306,6 +311,19 @@ namespace InovancePLCService
             });
         }
 
+        /// <summary>
+        /// 写入某一个区的一个位
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="index"></param>
+        public virtual void PlcWriteBit(int address,int index,bool value)
+        {
+
+        }
+
+
+
+
         public virtual void PlcWriteBytes(int startAdr, byte[] value)
         {
             
@@ -346,6 +364,11 @@ namespace InovancePLCService
         }
 
         public virtual void PlcWriteFloats(int startAdr, float[] value)
+        {
+
+        }
+
+        public virtual async Task PlcwriteBitAsync(int address, int index, bool value)
         {
 
         }
@@ -458,22 +481,22 @@ namespace InovancePLCService
         }
 
         /// <summary>
-        /// 
+        /// 获取16位有符号整数的某一个bit位
         /// </summary>
         /// <param name="vaule"></param>
         /// <param name="index">范围为0-15，从低位开始</param>
         /// <returns></returns>
         public bool GetshortinBitStatus(short vaule,int index)
         {
-            return (vaule & (short)Math.Pow(2, index)) > 0 ? true : false;
+            return (vaule & (ushort)Math.Pow(2, index)) > 0 ? true : false;
         }
 
-        public short SetshortBit(short vaule,int index,bool status)
+        public short SetshortBit(ushort vaule,int index,bool status)
         {
-            if (index > 16 || index < 1)
+            if (index > 15 || index < 0)
                 throw new ArgumentOutOfRangeException();
-            int v = index < 2 ? index : (2 << (index - 2));
-            return status ? (byte)(vaule | v) : (byte)(vaule & ~v);
+            int v = 1 << index;
+            return status ? (short)(vaule | v) : (short)(vaule & ~v);
 
         }
 

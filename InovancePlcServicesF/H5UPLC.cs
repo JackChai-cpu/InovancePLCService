@@ -39,28 +39,9 @@ namespace InovancePLCService
 
                 return this.GetshortinBitStatus(wordresult,index);
             }
-            else if (nget == 2)
-            {
-                throw new PLCExcpetion(Errcode.ErrNotConnect, "未连接");
-            }
-            else if (nget == 3)
-            {
-                throw new PLCExcpetion(Errcode.ErrElemTypeWrong, "元件类型错误");
-            }
-            else if (nget == 4)
-            {
-                throw new PLCExcpetion(Errcode.ErrElemAddrOver, "元件地址溢出");
-            }
-            else if (nget == 5)
-            {
-                throw new PLCExcpetion(Errcode.ErrElemCountOver, "元件个数超限");
-            }
-            else if (nget == 6)
-            {
-                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");
-            }
             else
             {
+                ShowEx(nget);
                 throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
             }
         }
@@ -79,12 +60,18 @@ namespace InovancePLCService
             }            
             var beginresult = new byte[count];
             int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, countindex, beginresult, NNetId);
-            if (nRet == 1) { }
-            else if (nRet == 1) { }
-            else if (nRet == 1) { }
-            var result = new byte[count];
-            Array.Copy(beginresult, result, count);
-            return result;
+            if (nRet == 1) 
+            {
+                var result = new byte[count];
+                Array.Copy(beginresult, result, count);
+                return result;
+            }
+            else 
+            {
+                ShowEx(nRet);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+            }        
+            
         }
 
         public override object PlcReadWords(int startAdr, int count)
@@ -101,7 +88,7 @@ namespace InovancePLCService
             int nget=StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, NNetId);
             if (nget==1)
             {
-                var wordresult = new int[count];
+                var wordresult = new short[count];
                 for (int i = 0; i < count; i++)
                 {
                     byte[] databuf = new byte[2] { 0, 0 };
@@ -111,28 +98,10 @@ namespace InovancePLCService
                 }
                 return wordresult;
             }
-            else if(nget==2)
-            {
-                throw new PLCExcpetion(Errcode.ErrNotConnect,"未连接");
-            }
-            else if(nget==3)
-            {
-                throw new PLCExcpetion(Errcode.ErrElemTypeWrong, "元件类型错误");
-            }
-            else if (nget == 4)
-            {
-                throw new PLCExcpetion(Errcode.ErrElemAddrOver, "元件地址溢出");
-            }
-            else if (nget == 5)
-            {
-                throw new PLCExcpetion(Errcode.ErrElemCountOver, "元件个数超限");
-            }
-            else if (nget == 6)
-            {
-                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");
-            }
+
             else
             {
+                ShowEx(nget);
                 throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
             }
 
@@ -155,18 +124,26 @@ namespace InovancePLCService
                 count = 61;
             }
             var result = new byte[count * 4];
-            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count*2 , result, NNetId);
-            var wordresult = new Int32[count];
-            for (int i = 0; i < count; i++)
+            int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count*2 , result, NNetId);
+            if (nget == 1)
             {
-                byte[] databuf = new byte[4] { 0, 0, 0, 0 };
-                databuf[0] = result[i * 4];
-                databuf[1] = result[i * 4 + 1];
-                databuf[2] = result[i * 4 + 2];
-                databuf[3] = result[i * 4 + 3];
-                wordresult[i] = BitConverter.ToInt32(databuf, 0);
+                var wordresult = new Int32[count];
+                for (int i = 0; i < count; i++)
+                {
+                    byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                    databuf[0] = result[i * 4];
+                    databuf[1] = result[i * 4 + 1];
+                    databuf[2] = result[i * 4 + 2];
+                    databuf[3] = result[i * 4 + 3];
+                    wordresult[i] = BitConverter.ToInt32(databuf, 0);
+                }
+                return wordresult;
             }
-            return wordresult;
+            else
+            {
+                ShowEx(nget);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+            }
         }
 
         public override object PlcReadFloat(int startAdr, int count)
@@ -180,20 +157,60 @@ namespace InovancePLCService
                 count = 61;
             }
             var result = new byte[count * 4];
-            StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count*2, result, NNetId);
-            var wordresult = new float[count];
-            for (int i = 0; i < count; i++)
+            int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count*2, result, NNetId);
+            if (nget == 1)
             {
-                byte[] databuf = new byte[4] { 0, 0, 0, 0 };
-                databuf[0] = result[i * 4];
-                databuf[1] = result[i * 4 + 1];
-                databuf[2] = result[i * 4 + 2];
-                databuf[3] = result[i * 4 + 3];
-                wordresult[i] = BitConverter.ToSingle(databuf, 0);
+                var wordresult = new float[count];
+                for (int i = 0; i < count; i++)
+                {
+                    byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                    databuf[0] = result[i * 4];
+                    databuf[1] = result[i * 4 + 1];
+                    databuf[2] = result[i * 4 + 2];
+                    databuf[3] = result[i * 4 + 3];
+                    wordresult[i] = BitConverter.ToSingle(databuf, 0);
+                }
+                return wordresult;
             }
-            return wordresult;
+            else
+            {
+                ShowEx(nget);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+            }
         }
 
+        public override async Task<bool> PlcReadBitAsync(int Addear, int index)
+        {
+            return await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                if (index >= 16 || index < 0)
+                {
+                    throw new PLCExcpetion(Errcode.ErrReadFail, "读取位数有问题，范围为0-15（包含）");
+                }
+                var result = new byte[2];
+                int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, Addear, 1, result, NNetId);
+                if (nget == 1)
+                {
+                    short wordresult = new short();
+
+                    byte[] databuf = new byte[2] { 0, 0 };
+                    databuf[0] = result[0];
+                    databuf[1] = result[1];
+                    wordresult = BitConverter.ToInt16(databuf, 0);
+
+                    return this.GetshortinBitStatus(wordresult, index);
+                }
+                else
+                {
+                    ShowEx(nget);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+                }
+            });
+        }
         public override async Task<byte[]> PlcReadBytesAsync(int startByteAdr, int count)
         {
             return await Task.Run(() =>
@@ -202,8 +219,8 @@ namespace InovancePLCService
                 {
                     PlcOpen();
                 }
-                int countindex = (int)((double)count / 2 + 0.5);
 
+                int countindex = (int)((double)count / 2 + 0.5);
                 //最多读取123个字或者246个字节
                 if (count >= 246)
                 {
@@ -211,13 +228,17 @@ namespace InovancePLCService
                 }
                 var beginresult = new byte[count];
                 int nRet = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startByteAdr, countindex, beginresult, NNetId);
-                //if (nRet == (int)Errcode.ER_READ_WRITE_FAIL) { }
-                //else if (nRet == 1) { }
-                //else if (nRet == 1) { }
-                var result = new byte[count];
-                Array.Copy(beginresult, result, count);
-
-                return result;
+                if (nRet == 1)
+                {
+                    var result = new byte[count];
+                    Array.Copy(beginresult, result, count);
+                    return result;
+                }
+                else
+                {
+                    ShowEx(nRet);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+                }
             });
 
         }
@@ -235,16 +256,25 @@ namespace InovancePLCService
                     count = 123;
                 }
                 var result = new byte[count * 2];
-                StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, NNetId);
-                var wordresult = new int[count];
-                for (int i = 0; i < count; i++)
+                int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, NNetId);
+                if (nget == 1)
                 {
-                    byte[] databuf = new byte[2] { 0, 0 };
-                    databuf[0] = result[i * 2];
-                    databuf[1] = result[i * 2 + 1];
-                    wordresult[i] = BitConverter.ToInt16(databuf, 0);
+                    var wordresult = new short[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        byte[] databuf = new byte[2] { 0, 0 };
+                        databuf[0] = result[i * 2];
+                        databuf[1] = result[i * 2 + 1];
+                        wordresult[i] = BitConverter.ToInt16(databuf, 0);
+                    }
+                    return wordresult;
                 }
-                return wordresult;
+
+                else
+                {
+                    ShowEx(nget);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+                }
             });
             
         }
@@ -262,18 +292,26 @@ namespace InovancePLCService
                     count = 61;
                 }
                 var result = new byte[count * 4];
-                StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count * 2, result, NNetId);
-                var wordresult = new Int32[count];
-                for (int i = 0; i < count; i++)
+                int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count * 2, result, NNetId);
+                if (nget == 1)
                 {
-                    byte[] databuf = new byte[4] { 0, 0, 0, 0 };
-                    databuf[0] = result[i * 4];
-                    databuf[1] = result[i * 4 + 1];
-                    databuf[2] = result[i * 4 + 2];
-                    databuf[3] = result[i * 4 + 3];
-                    wordresult[i] = BitConverter.ToInt32(databuf, 0);
+                    var wordresult = new Int32[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                        databuf[0] = result[i * 4];
+                        databuf[1] = result[i * 4 + 1];
+                        databuf[2] = result[i * 4 + 2];
+                        databuf[3] = result[i * 4 + 3];
+                        wordresult[i] = BitConverter.ToInt32(databuf, 0);
+                    }
+                    return wordresult;
                 }
-                return wordresult;
+                else
+                {
+                    ShowEx(nget);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+                }
             });
         }
 
@@ -290,19 +328,44 @@ namespace InovancePLCService
                     count = 61;
                 }
                 var result = new byte[count * 4];
-                StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count * 2, result, NNetId);
-                var wordresult = new float[count];
-                for (int i = 0; i < count; i++)
+                int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count * 2, result, NNetId);
+                if (nget == 1)
                 {
-                    byte[] databuf = new byte[4] { 0, 0, 0, 0 };
-                    databuf[0] = result[i * 4];
-                    databuf[1] = result[i * 4 + 1];
-                    databuf[2] = result[i * 4 + 2];
-                    databuf[3] = result[i * 4 + 3];
-                    wordresult[i] = BitConverter.ToSingle(databuf, 0);
+                    var wordresult = new float[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        byte[] databuf = new byte[4] { 0, 0, 0, 0 };
+                        databuf[0] = result[i * 4];
+                        databuf[1] = result[i * 4 + 1];
+                        databuf[2] = result[i * 4 + 2];
+                        databuf[3] = result[i * 4 + 3];
+                        wordresult[i] = BitConverter.ToSingle(databuf, 0);
+                    }
+                    return wordresult;
                 }
-                return wordresult;
+                else
+                {
+                    ShowEx(nget);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+                }
             });
+        }
+
+        public override void PlcWriteBit(int address, int index, bool value)
+        {
+            if (!IsConnect)
+            {
+                PlcOpen();
+            }
+            if (index >= 16 || index < 0)
+            {
+                throw new PLCExcpetion(Errcode.ErrWriteFail, "写入位数有问题，范围为0-15（包含）");
+            }
+            short[] rest = this.PlcReadWords(address,1)as short[];
+            short begin = rest[0];
+
+            short end = SetshortBit((ushort)begin, index, value);
+            PlcWriteWords(address,new short[1] { end });
         }
 
         public override void PlcWriteBytes(int startAdr, byte[] value)
@@ -330,9 +393,13 @@ namespace InovancePLCService
                 newbyte[value.Length] = nRets[1];
 
                 nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, newbyte, NNetId);
-            }            
+            }
 
-            if (nRet == 0) { }
+            if (nRet != 1) 
+            {
+                ShowEx(nRet);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+            }
         }
 
         public override void PlcWriteWords(int startAdr, short[] value)
@@ -351,7 +418,11 @@ namespace InovancePLCService
                 pBuf[2 * i + 1] = dataBuf[1];
             }
             int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, pBuf, NNetId);
-            if (nRet == 0) { }
+            if (nRet != 1)
+            {
+                ShowEx(nRet);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+            }
         }
 
         public override void PlcWriteDoubleWords(int startAdr, int[] value)
@@ -372,7 +443,11 @@ namespace InovancePLCService
                 pBuf[4 * i + 3] = dataBuf[3];
             }
             int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount*2, pBuf, NNetId);
-            if (nRet == 0) { }
+            if (nRet != 1)
+            {
+                ShowEx(nRet);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+            }
         }
 
         public override void PlcWriteFloats(int startAdr, float[] value)
@@ -393,7 +468,32 @@ namespace InovancePLCService
                 pBuf[4 * i + 3] = dataBuf[3];
             }
             int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount * 2, pBuf, NNetId);
-            if (nRet == 0) { }
+            if (nRet != 1)
+            {
+                ShowEx(nRet);
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+            }
+        }
+
+        public override async Task PlcwriteBitAsync(int address, int index, bool value)
+        {
+            await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                if (index >= 16 || index < 0)
+                {
+                    throw new PLCExcpetion(Errcode.ErrWriteFail, "写入位数有问题，范围为0-15（包含）");
+                }
+                short[] rest = this.PlcReadWords(address, 1) as short[];
+                short begin = rest[0];
+
+                short end = SetshortBit((ushort)begin, index, value);
+                PlcWriteWords(address, new short[1] { end });
+
+            });
         }
 
         public override async Task PlcWriteBytesAsync(int startAdr, byte[] value)
@@ -425,7 +525,11 @@ namespace InovancePLCService
                     nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, newbyte, NNetId);
                 }
 
-                if (nRet == 0) { }
+                if (nRet != 1)
+                {
+                    ShowEx(nRet);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+                }
 
             });
         }
@@ -448,7 +552,11 @@ namespace InovancePLCService
                     pBuf[2 * i + 1] = dataBuf[1];
                 }
                 int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount, pBuf, NNetId);
-                if (nRet == 0) { }
+                if (nRet != 1)
+                {
+                    ShowEx(nRet);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+                }
 
             });
         }
@@ -473,7 +581,11 @@ namespace InovancePLCService
                     pBuf[4 * i + 3] = dataBuf[3];
                 }
                 int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount * 2, pBuf, NNetId);
-                if (nRet == 0) { }
+                if (nRet != 1)
+                {
+                    ShowEx(nRet);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+                }
 
             });
         }
@@ -498,7 +610,11 @@ namespace InovancePLCService
                     pBuf[4 * i + 3] = dataBuf[3];
                 }
                 int nRet = StandardModbusApi.H5u_Write_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, ncount * 2, pBuf, NNetId);
-                if (nRet == 0) { }
+                if (nRet != 1)
+                {
+                    ShowEx(nRet);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "写入失败");
+                }
 
             });
         }
@@ -514,6 +630,32 @@ namespace InovancePLCService
                 default:
                     return false;
             }
+        }
+
+        private void ShowEx(int net)
+        {
+
+            if(net == 2)
+            {
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "未连接");
+            }
+            else if (net == 3)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemTypeWrong, "元件类型错误");
+            }
+            else if (net == 4)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemAddrOver, "元件地址溢出");
+            }
+            else if (net == 5)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemCountOver, "元件个数超限");
+            }
+            else if (net == 6)
+            {
+                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");
+            }
+
         }
     }
 }
