@@ -176,7 +176,35 @@ namespace InovancePLCService
 
         public virtual async Task< bool> PlcReadBitAsync(int Addear, int index)
         {
-            return true;
+            return await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                if (index >= 16 || index < 0)
+                {
+                    throw new PLCExcpetion(Errcode.ErrReadFail, "读取位数有问题，范围为0-15（包含）");
+                }
+                var result = new byte[2];
+                int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, Addear, 1, result, NNetId);
+                if (nget == 1)
+                {
+                    short wordresult = new short();
+
+                    byte[] databuf = new byte[2] { 0, 0 };
+                    databuf[0] = result[0];
+                    databuf[1] = result[1];
+                    wordresult = BitConverter.ToInt16(databuf, 0);
+
+                    return this.GetshortinBitStatus(wordresult, index);
+                }
+                else
+                {
+                    //ShowEx(nget);
+                    throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+                }
+            });
         }
         /// <summary>
         /// 读取byte类型数据（10进制）
@@ -370,7 +398,23 @@ namespace InovancePLCService
 
         public virtual async Task PlcwriteBitAsync(int address, int index, bool value)
         {
+            await Task.Run(() =>
+            {
+                if (!IsConnect)
+                {
+                    PlcOpen();
+                }
+                if (index >= 16 || index < 0)
+                {
+                    throw new PLCExcpetion(Errcode.ErrWriteFail, "写入位数有问题，范围为0-15（包含）");
+                }
+                short[] rest = (short[])this.PlcReadWords(address, 1);
+                short begin = rest[0];
 
+                short end = SetshortBit((ushort)begin, index, value);
+                PlcWriteWords(address, new short[1] { end });
+
+            });
         }
 
         public virtual async Task PlcWriteBytesAsync(int startAdr, byte[] value)

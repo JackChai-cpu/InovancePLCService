@@ -121,6 +121,8 @@ namespace InovancePLCService
         ErrCommExcept=6, //通讯异常
 
         ErrWriteFail=7,//写入失败
+
+        ErrAdsWrong=8,//地址错误
     }
 
 }

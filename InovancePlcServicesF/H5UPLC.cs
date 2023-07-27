@@ -361,7 +361,7 @@ namespace InovancePLCService
             {
                 throw new PLCExcpetion(Errcode.ErrWriteFail, "写入位数有问题，范围为0-15（包含）");
             }
-            short[] rest = this.PlcReadWords(address,1)as short[];
+            short[] rest = (short[])this.PlcReadWords(address, 1);  
             short begin = rest[0];
 
             short end = SetshortBit((ushort)begin, index, value);
@@ -487,7 +487,7 @@ namespace InovancePLCService
                 {
                     throw new PLCExcpetion(Errcode.ErrWriteFail, "写入位数有问题，范围为0-15（包含）");
                 }
-                short[] rest = this.PlcReadWords(address, 1) as short[];
+                short[] rest = (short[])this.PlcReadWords(address, 1);
                 short begin = rest[0];
 
                 short end = SetshortBit((ushort)begin, index, value);
