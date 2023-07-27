@@ -54,7 +54,18 @@ namespace InovancePLCService
 
         public bool PlcClose()
         {
-            return true;
+            try
+            {
+                //if (string.IsNullOrEmpty(ip)) { IsConnect = false; return false; }
+                bool result = StandardModbusApi.Exit_ETH(nNetId);
+                if (result) { IsConnect = false; return false; }
+                else { IsConnect = false; return false; }
+            }
+            catch
+            {
+                IsConnect = false;
+                return false;
+            }
         }
 
         public virtual bool PlcReadBit(int Addear,int index)
@@ -92,6 +103,12 @@ namespace InovancePLCService
             Array.Copy(beginresult, result, count);
             return result;
 
+        }
+
+        public virtual bool PlcReadWordsBool(int startAdr)
+        {
+            var res = (short[])PlcReadWords(startAdr, 1);
+            return Convert.ToBoolean(res[0]);
         }
 
         /// <summary>
@@ -355,6 +372,12 @@ namespace InovancePLCService
         public virtual void PlcWriteBytes(int startAdr, byte[] value)
         {
             
+        }
+
+        public virtual void PlcWriteWordsBool(int startAdr, bool value)
+        {
+            short res = Convert.ToInt16(value);
+            PlcWriteWords(startAdr, new short[1] { res });
         }
 
         /// <summary>

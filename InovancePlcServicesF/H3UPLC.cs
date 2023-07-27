@@ -69,6 +69,7 @@ namespace InovancePLCService
 
         }
 
+
         public override object PlcReadWords(int startAdr, int count)
         {
             if (!IsConnect)
