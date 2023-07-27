@@ -1,4 +1,5 @@
-﻿using S7.Net.Types;
+﻿using Newtonsoft.Json.Linq;
+using S7.Net.Types;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +16,54 @@ namespace InovancePLCService
         {
         }
 
+        public override bool PlcReadBit(int Addear, int index)
+        {
+            if (!IsConnect)
+            {
+                PlcOpen();
+            }
+            if(index >= 16|| index < 0)
+            {
+                throw new PLCExcpetion(Errcode.ErrReadFail, "读取位数有问题，范围为0-15（包含）");
+            }
+            var result = new byte[2];
+            int nget = StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, Addear, 1, result, NNetId);
+            if (nget == 1)
+            {
+                short wordresult = new short();
+                
+                byte[] databuf = new byte[2] { 0, 0 };
+                databuf[0] = result[0];
+                databuf[1] = result[1];
+                wordresult = BitConverter.ToInt16(databuf, 0);
 
+                return this.GetshortinBitStatus(wordresult,index);
+            }
+            else if (nget == 2)
+            {
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "未连接");
+            }
+            else if (nget == 3)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemTypeWrong, "元件类型错误");
+            }
+            else if (nget == 4)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemAddrOver, "元件地址溢出");
+            }
+            else if (nget == 5)
+            {
+                throw new PLCExcpetion(Errcode.ErrElemCountOver, "元件个数超限");
+            }
+            else if (nget == 6)
+            {
+                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");
+            }
+            else
+            {
+                throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
+            }
+        }
         public override object PlcReadBytes(int startByteAdr, int count)
         {
             if (!IsConnect)
@@ -173,7 +221,6 @@ namespace InovancePLCService
             });
 
         }
-
 
         public override async Task<object> PlcReadWordsAsync(int startAdr, int count)
         {
@@ -382,6 +429,7 @@ namespace InovancePLCService
 
             });
         }
+
         public override async Task PlcWriteWordsAsync(int startAdr, byte[] value)
         {
             await Task.Run(() =>
