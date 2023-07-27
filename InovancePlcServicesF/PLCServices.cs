@@ -28,5 +28,124 @@ namespace InovancePLCService
                 InovancePlc = new H3UPLC(IP, Port, Netid);
             }
         }
+
+        /// <summary>
+        /// 检查出入料口对应位置是否有物料
+        /// </summary>
+        /// <param name="portId">出入料口的编号</param>
+        /// <param name="loc">出入料口</param>
+        /// <returns></returns>
+        public bool IsMaterialAtPort(int portId,string loc)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 出入料口均为3个work_position设计。根据上位机控制指令下发，驱动对应进出俩口将物料驱动移送至指定工作位置
+        /// </summary>
+        /// <param name="portId">出入料口的编号</param>
+        /// <param name="loc">出入料口</param>
+        /// <returns></returns>
+        public bool MovePort(int portId,string loc)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 出入料口测距传感器，执行测距动作，返回测距值
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public double MeasureDisAtPort(int portId)
+        {
+            return 0.0;
+        }
+
+        /// <summary>
+        /// 行车模组执行运动，运动至指定进出料口的预设等待位置
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public bool MoveCrane2PortHolding(int portId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 行车模组执行运动，运动至指定进出料口的拍照位姿
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public bool MoveCrane2PhotoPose(int portId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 行车Fork顶部相机（二维码）拍照，并识别二维码信息
+        /// </summary>
+        /// <returns>info：二维码包含的字符串信息，string类型</returns>
+        public string PhotoAndRead2DCodeInfo()
+        {
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 行车执行物料插取动作，将物料收至行车模块的Fork仓位中；动作执行完成后，复位至入料口等待位置
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public bool MoveCranePickAtPort(int portId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 行车执行物料插取动作，将物料从Fork上放至进出料口中；动作执行完成后，复位至入料口等待位置
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public bool MoveCranePlaceAtPort(int portId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 行车模组执行插补运动，运动至指定仓库库位位置前的预设等待位置
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <returns></returns>
+        public bool MoveCrane2StockLocation(string locationId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 行车模组执行运动，从指定仓库库位取料至Fork中；动作执行完成后，复位至入料口等待位置
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <returns></returns>
+        public bool MoveCranePickAtStockLoc(string locationId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 行车模组执行运动，从Fork将物料放置指定仓位中；动作执行完成后，复位至入料口等待位置
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <returns></returns>
+        public bool MoveCranePlaceAtStockLoc(string locationId)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// 回Home
+        /// </summary>
+        public void MoveCrane2Home()
+        {
+
+        }
     }
 }

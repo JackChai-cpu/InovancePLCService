@@ -112,13 +112,15 @@ namespace InovancePLCService
 
     public enum Errcode
     {
-        ErreadFail = 0,   //读写失败
+        ErrReadFail = 0,   //读取失败
         //ER_READ_WRITE_SUCCEED = 1,  //读写成功
         ErrNotConnect = 2,  //未连接
         ErrElemTypeWrong=3, //元件类型错误
         ErrElemAddrOver=4,//元件地址溢出
         ErrElemCountOver=5, //元件个数超限
         ErrCommExcept=6, //通讯异常
+
+        ErrWriteFail=7,//写入失败
     }
 
 }

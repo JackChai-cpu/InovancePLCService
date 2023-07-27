@@ -1,5 +1,6 @@
 ﻿using InovancePLCService;
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -52,6 +53,11 @@ namespace InovancePLCService
         }
 
         public bool PlcClose()
+        {
+            return true;
+        }
+
+        public virtual bool PlcReadBit(int Addear,int index)
         {
             return true;
         }
@@ -449,6 +455,26 @@ namespace InovancePLCService
                 if (nRet == 0) { }
 
             });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vaule"></param>
+        /// <param name="index">范围为0-15，从低位开始</param>
+        /// <returns></returns>
+        public bool GetshortinBitStatus(short vaule,int index)
+        {
+            return (vaule & (short)Math.Pow(2, index)) > 0 ? true : false;
+        }
+
+        public short SetshortBit(short vaule,int index,bool status)
+        {
+            if (index > 16 || index < 1)
+                throw new ArgumentOutOfRangeException();
+            int v = index < 2 ? index : (2 << (index - 2));
+            return status ? (byte)(vaule | v) : (byte)(vaule & ~v);
+
         }
 
         public string ByteArrayTo2Base(Byte[] bytes)
