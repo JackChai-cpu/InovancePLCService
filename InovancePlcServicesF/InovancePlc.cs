@@ -102,7 +102,6 @@ namespace InovancePLCService
             var result = new byte[count];
             Array.Copy(beginresult, result, count);
             return result;
-
         }
 
         public virtual bool PlcReadWordsBool(int startAdr)

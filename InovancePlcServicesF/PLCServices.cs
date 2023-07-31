@@ -147,5 +147,38 @@ namespace InovancePLCService
         {
 
         }
+
+        public List<short> GetAlarmStatus()
+        {
+            try
+            {
+                List<short> errorcode = new List<short>();
+
+                short[] status1 = (short[])InovancePlc.PlcReadWords(2000, 123);
+                short[] status2 = (short[])InovancePlc.PlcReadWords(2123, 8);
+                short[] status3 = (short[])InovancePlc.PlcReadWords(3000, 30);
+                for (short i = 0; i < status1.Length; i++)
+                {
+                    if (status1[i] !=0)
+                        errorcode.Add((short)(i + 1));
+                }
+                for (short i = 0; i < status2.Length; i++)
+                {
+                    if (status2[i] != 0)
+                        errorcode.Add((short)(i + 124));
+                }
+                for (short i = 0; i < status3.Length; i++)
+                {
+                    if (status3[i] != 0)
+                        errorcode.Add((short)(i + 133));
+                }
+                return errorcode;
+            }
+            catch
+            {
+                return new List<short>();
+            }
+
+        }
     }
 }
