@@ -8,8 +8,20 @@ namespace InovancePLCService
 {
     public class PLCServices
     {
+        #region 字段
         public InovancePlc InovancePlc;
+        #endregion
 
+        #region 委托
+        public delegate void geterrorcode(List<short> shorts);
+        #endregion
+
+        #region 事件
+        public event geterrorcode GetErrorCode;
+        #endregion
+        private System.Timers.Timer timer = new System.Timers.Timer();
+
+        
         /// <summary>
         /// 创建连接实例
         /// </summary>
@@ -27,16 +39,23 @@ namespace InovancePLCService
             {
                 InovancePlc = new H3UPLC(IP, Port, Netid);
             }
+            timer.Elapsed+= new System.Timers.ElapsedEventHandler(GetAlarmStatus);
+            timer.Interval = 500;
+            timer.AutoReset = true;
+            timer.Enabled = false;
+            timer.Start();
         }
 
+        #region 公共方法
         /// <summary>
         /// 检查出入料口对应位置是否有物料
         /// </summary>
         /// <param name="portId">出入料口的编号</param>
         /// <param name="loc">出入料口</param>
         /// <returns></returns>
-        public bool IsMaterialAtPort(int portId,string loc)
+        public bool IsMaterialAtPort(int portId,int loc)
         {
+
             return false;
         }
 
@@ -148,15 +167,15 @@ namespace InovancePLCService
 
         }
 
-        public List<short> GetAlarmStatus()
+        public void GetAlarmStatus(object sender, System.Timers.ElapsedEventArgs elapsedEventArgs)
         {
             try
             {
                 List<short> errorcode = new List<short>();
 
-                short[] status1 = (short[])InovancePlc.PlcReadWords(2000, 123);
-                short[] status2 = (short[])InovancePlc.PlcReadWords(2123, 8);
-                short[] status3 = (short[])InovancePlc.PlcReadWords(3000, 30);
+                short[] status1 = InovancePlc.PlcReadWords(2000, 123);
+                short[] status2 = InovancePlc.PlcReadWords(2123, 8);
+                short[] status3 = InovancePlc.PlcReadWords(3000, 30);
                 for (short i = 0; i < status1.Length; i++)
                 {
                     if (status1[i] !=0)
@@ -172,6 +191,40 @@ namespace InovancePLCService
                     if (status3[i] != 0)
                         errorcode.Add((short)(i + 133));
                 }
+                GetErrorCode(errorcode);
+                //return errorcode;                
+            }
+            catch
+            {
+                return ;
+            }
+
+        }
+        public List<short> GetAlarmStatus()
+        {
+            try
+            {
+                List<short> errorcode = new List<short>();
+
+                short[] status1 = InovancePlc.PlcReadWords(2000, 123);
+                short[] status2 = InovancePlc.PlcReadWords(2123, 8);
+                short[] status3 = InovancePlc.PlcReadWords(3000, 30);
+                for (short i = 0; i < status1.Length; i++)
+                {
+                    if (status1[i] != 0)
+                        errorcode.Add((short)(i + 1));
+                }
+                for (short i = 0; i < status2.Length; i++)
+                {
+                    if (status2[i] != 0)
+                        errorcode.Add((short)(i + 124));
+                }
+                for (short i = 0; i < status3.Length; i++)
+                {
+                    if (status3[i] != 0)
+                        errorcode.Add((short)(i + 133));
+                }
+                GetErrorCode(errorcode);
                 return errorcode;
             }
             catch
@@ -180,5 +233,6 @@ namespace InovancePLCService
             }
 
         }
+        #endregion
     }
 }

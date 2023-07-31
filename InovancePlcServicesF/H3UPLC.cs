@@ -40,7 +40,7 @@ namespace InovancePLCService
                 throw new PLCExcpetion(Errcode.ErrNotConnect, "读取失败");
             }
         }
-        public override object PlcReadBytes(int startByteAdr, int count)
+        public override byte[] PlcReadBytes(int startByteAdr, int count)
         {
             if (!IsConnect)
             {
@@ -70,7 +70,7 @@ namespace InovancePLCService
         }
 
 
-        public override object PlcReadWords(int startAdr, int count)
+        public override short[] PlcReadWords(int startAdr, int count)
         {
             if (!IsConnect)
             {
@@ -109,7 +109,7 @@ namespace InovancePLCService
         /// <param name="startAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public override object PlcReadDoublewords(int startAdr, int count)
+        public override int[] PlcReadDoublewords(int startAdr, int count)
         {
             if (!IsConnect)
             {
@@ -142,7 +142,7 @@ namespace InovancePLCService
             }
         }
 
-        public override object PlcReadFloat(int startAdr, int count)
+        public override float[] PlcReadFloat(int startAdr, int count)
         {
             if (!IsConnect)
             {
@@ -239,7 +239,7 @@ namespace InovancePLCService
 
         }
 
-        public override async Task<object> PlcReadWordsAsync(int startAdr, int count)
+        public override async Task<short[]> PlcReadWordsAsync(int startAdr, int count)
         {
             return await Task.Run(() =>
             {
@@ -275,7 +275,7 @@ namespace InovancePLCService
 
         }
 
-        public override async Task<object> PlcReadDoubleWordsAsync(int startAdr, int count)
+        public override async Task<int[]> PlcReadDoubleWordsAsync(int startAdr, int count)
         {
             return await Task.Run(() =>
             {
@@ -311,7 +311,7 @@ namespace InovancePLCService
             });
         }
 
-        public override async Task<object> PlcReadFloatsAsync(int startAdr, int count)
+        public override async Task<float[]> PlcReadFloatsAsync(int startAdr, int count)
         {
             return await Task.Run(() =>
             {
