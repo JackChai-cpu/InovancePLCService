@@ -68,12 +68,12 @@ namespace InovancePLCService
             }
         }
 
-        public virtual bool PlcReadBit(int Addear,int index)
+        public virtual bool PlcReadBit(int Addear, int index)
         {
             return true;
         }
 
-        
+
         /// <summary>
         /// 返回的值位每个byte的十进制数，需要转换为其他,需要自行转换
         /// </summary>
@@ -81,7 +81,7 @@ namespace InovancePLCService
         /// <param name="startByteAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual object PlcReadBytes(int startByteAdr, int count)
+        public virtual byte[] PlcReadBytes(int startByteAdr, int count)
         {
             if (!IsConnect)
             {
@@ -117,7 +117,7 @@ namespace InovancePLCService
         /// <param name="startByteAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual object PlcReadWords(int startAdr, int count)
+        public virtual short[] PlcReadWords(int startAdr, int count)
         {
             if (!IsConnect)
             {
@@ -125,7 +125,7 @@ namespace InovancePLCService
             }
             var result = new byte[count * 2];
             StandardModbusApi.H5u_Read_Soft_Elem(SoftElemType.REGI_H5U_D, startAdr, count, result, nNetId);
-            var wordresult = new int[count];
+            var wordresult = new short[count];
             for (int i = 0; i < count; i++)
             {
                 byte[] databuf = new byte[2] { 0, 0 };
@@ -142,7 +142,7 @@ namespace InovancePLCService
         /// <param name="startAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual object PlcReadDoublewords(int startAdr,int count)
+        public virtual int[] PlcReadDoublewords(int startAdr,int count)
         {
             if (!IsConnect)
             {
@@ -169,7 +169,7 @@ namespace InovancePLCService
         /// <param name="startAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual object PlcReadFloat(int startAdr, int count)
+        public virtual float[] PlcReadFloat(int startAdr, int count)
         {
             if (!IsConnect)
             {
@@ -261,7 +261,7 @@ namespace InovancePLCService
         /// <param name="startByteAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual async Task<object> PlcReadWordsAsync(int startAdr, int count)
+        public virtual async Task<short[]> PlcReadWordsAsync(int startAdr, int count)
         {
             if (!IsConnect)
             {
@@ -275,7 +275,7 @@ namespace InovancePLCService
             if (nRet == 1) { }
             else if (nRet == 1) { }
             else if (nRet == 1) { }
-            var wordresult = new int[count];
+            var wordresult = new short[count];
             for (int i = 0; i < count; i++)
             {
                 byte[] databuf = new byte[2] { 0, 0 };
@@ -293,7 +293,7 @@ namespace InovancePLCService
         /// <param name="startAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual async Task<object> PlcReadDoubleWordsAsync(int startAdr, int count)
+        public virtual async Task<int[]> PlcReadDoubleWordsAsync(int startAdr, int count)
         {
             return await Task.Run(() =>
             {
@@ -327,7 +327,7 @@ namespace InovancePLCService
         /// <param name="startAdr"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public virtual async Task<object> PlcReadFloatsAsync(int startAdr, int count)
+        public virtual async Task<float[]> PlcReadFloatsAsync(int startAdr, int count)
         {
             return await Task.Run(() =>
             {
