@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,16 @@ namespace InovancePLCService
     {
         #region 字段
         public InovancePlc InovancePlc;
+        List<short> errcode=new List<short>();
         #endregion
+
+        #region 属性
+        /// <summary>
+        /// 当前报警代码，数量为0时无报警
+        /// </summary>
+        public List<short> Errcode { get => errcode; }
+        #endregion
+
 
         #region 委托
         public delegate void geterrorcode(List<short> shorts);
@@ -22,6 +32,8 @@ namespace InovancePLCService
         private System.Timers.Timer timer = new System.Timers.Timer();
 
         
+
+
         /// <summary>
         /// 创建连接实例
         /// </summary>
@@ -167,6 +179,53 @@ namespace InovancePLCService
 
         }
 
+        /// <summary>
+        /// 切换自动
+        /// </summary>
+        /// <returns></returns>
+        public bool ToggleAutoMode()
+        {
+            try
+            {
+                InovancePlc.PlcWriteWords(1070, new short[1] {2});
+                if(InovancePlc.PlcReadWords(1070, 1)[0] == 2)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                throw new Exception("Plc出错，请检查连接状态");
+            }
+        }
+
+        /// <summary>
+        /// 切换手动
+        /// </summary>
+        /// <returns></returns>
+        public bool ToggleManualMode()
+        {
+            try
+            {
+                InovancePlc.PlcWriteWords(1070, new short[1] { 1 });
+                if (InovancePlc.PlcReadWords(1070, 1)[0] == 1)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                throw new Exception("Plc出错，请检查连接状态");
+            }
+        }
+
+        /// <summary>
+        /// 读取报警状态，通过计时器来读取
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="elapsedEventArgs"></param>
         public void GetAlarmStatus(object sender, System.Timers.ElapsedEventArgs elapsedEventArgs)
         {
             try
@@ -189,17 +248,21 @@ namespace InovancePLCService
                 for (short i = 0; i < status3.Length; i++)
                 {
                     if (status3[i] != 0)
-                        errorcode.Add((short)(i + 133));
+                        errorcode.Add((short)(i + 200));
                 }
                 GetErrorCode(errorcode);
-                //return errorcode;                
+                errcode = errorcode;
             }
-            catch
+            catch(Exception e)
             {
-                return ;
+                //throw new Exception("读取计时器状态错误");                
             }
-
         }
+
+        /// <summary>
+        /// 开放给上层读取报警状态
+        /// </summary>
+        /// <returns></returns>
         public List<short> GetAlarmStatus()
         {
             try
@@ -222,14 +285,15 @@ namespace InovancePLCService
                 for (short i = 0; i < status3.Length; i++)
                 {
                     if (status3[i] != 0)
-                        errorcode.Add((short)(i + 133));
+                        errorcode.Add((short)(i + 200));
                 }
                 GetErrorCode(errorcode);
+                string sad=PlcAlarmInfo.AlarmInfo[1];
                 return errorcode;
             }
             catch
             {
-                return new List<short>();
+                throw new Exception("读取报警状态错误");
             }
 
         }
