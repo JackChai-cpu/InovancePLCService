@@ -179,16 +179,41 @@ namespace InovancePLCService
 
         }
 
+        #region 取料区工作数据
         /// <summary>
-        /// 切换自动
+        /// 设置工作模式
         /// </summary>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public bool ToggleAutoMode()
+        public bool SetWorkingMode(WorkingMode mode)
         {
             try
             {
-                InovancePlc.PlcWriteWords(1070, new short[1] {2});
-                if(InovancePlc.PlcReadWords(1070, 1)[0] == 2)
+                InovancePlc.PlcWriteWords(1070, new short[1] { (short)mode });
+                if (InovancePlc.PlcReadWords(1070, 1)[0] == (short)mode)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                throw new Exception("Plc出错，请检查连接状态");
+            }
+        }
+        
+        /// <summary>
+        /// 设置取料区工件大小
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool SetTakeMaterialWorkpieceType(TakeMaterialsWorkpieceType type)
+        {
+            try
+            {
+                InovancePlc.PlcWriteWords(1071, new short[1] { (short)type });
+                if (InovancePlc.PlcReadWords(1071, 1)[0] ==( short) type)
                 {
                     return true;
                 }
@@ -201,15 +226,17 @@ namespace InovancePLCService
         }
 
         /// <summary>
-        /// 切换手动
+        /// 设置取料区工作数据
         /// </summary>
+        /// <param name="workportAssignment"></param>
         /// <returns></returns>
-        public bool ToggleManualMode()
+        /// <exception cref="Exception"></exception>
+        public bool SetTakeMaterialsWorkportAssignment(TakeMaterialsWorkportAssignment workportAssignment)
         {
             try
             {
-                InovancePlc.PlcWriteWords(1070, new short[1] { 1 });
-                if (InovancePlc.PlcReadWords(1070, 1)[0] == 1)
+                InovancePlc.PlcWriteWords(1076, new short[1] { (short)workportAssignment });
+                if (InovancePlc.PlcReadWords(1076, 1)[0] == (short)workportAssignment)
                 {
                     return true;
                 }
@@ -220,7 +247,7 @@ namespace InovancePLCService
                 throw new Exception("Plc出错，请检查连接状态");
             }
         }
-
+        #endregion
         /// <summary>
         /// 读取报警状态，通过计时器来读取
         /// </summary>

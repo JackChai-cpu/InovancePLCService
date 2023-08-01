@@ -125,4 +125,39 @@ namespace InovancePLCService
         ErrAdsWrong=8,//地址错误
     }
 
+    /// <summary>
+    /// 工作方式
+    /// </summary>
+    public enum WorkingMode
+    {
+        /// <summary>
+        /// 自动
+        /// </summary>
+        Auto=2,
+        /// <summary>
+        /// 手动
+        /// </summary>
+        Manual=1,
+    }
+
+
+    /// <summary>
+    /// 取料区工件类型
+    /// </summary>
+    public enum TakeMaterialsWorkpieceType
+    {
+        Big=1,
+        Mid=2,
+        Small=3,
+    }
+
+    /// <summary>
+    /// 取料区工作口分配
+    /// </summary>
+    public enum TakeMaterialsWorkportAssignment
+    {
+        Feedport=1,
+        Dischargeport=2,
+        AbnormalPort=3,
+    }
 }
