@@ -180,15 +180,16 @@ namespace InovancePLCService
         }
 
         /// <summary>
-        /// 切换自动
+        /// 设置工作模式
         /// </summary>
+        /// <param name="mode"></param>
         /// <returns></returns>
-        public bool ToggleAutoMode()
+        public bool SetWorkingMode(WorkingMode mode)
         {
             try
             {
-                InovancePlc.PlcWriteWords(1070, new short[1] {2});
-                if(InovancePlc.PlcReadWords(1070, 1)[0] == 2)
+                InovancePlc.PlcWriteWords(1070, new short[1] { (short)mode });
+                if (InovancePlc.PlcReadWords(1070, 1)[0] == (short)mode)
                 {
                     return true;
                 }
@@ -199,17 +200,19 @@ namespace InovancePLCService
                 throw new Exception("Plc出错，请检查连接状态");
             }
         }
-
+        
         /// <summary>
-        /// 切换手动
+        /// 设置取料区工件大小
         /// </summary>
+        /// <param name="type"></param>
         /// <returns></returns>
-        public bool ToggleManualMode()
+        /// <exception cref="Exception"></exception>
+        public bool SetWorkpieceType(WorkpieceType type)
         {
             try
             {
-                InovancePlc.PlcWriteWords(1070, new short[1] { 1 });
-                if (InovancePlc.PlcReadWords(1070, 1)[0] == 1)
+                InovancePlc.PlcWriteWords(1071, new short[1] { (short)type });
+                if (InovancePlc.PlcReadWords(1071, 1)[0] ==( short) type)
                 {
                     return true;
                 }
