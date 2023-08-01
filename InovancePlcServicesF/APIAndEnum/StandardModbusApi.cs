@@ -144,7 +144,7 @@ namespace InovancePLCService
     /// <summary>
     /// 取料区工件类型
     /// </summary>
-    public enum TakeMaterialsWorkpieceType
+    public enum FeedingWorkpieceType
     {
         Big=1,
         Mid=2,
@@ -154,10 +154,55 @@ namespace InovancePLCService
     /// <summary>
     /// 取料区工作口分配
     /// </summary>
-    public enum TakeMaterialsWorkportAssignment
+    public enum FeedingWorkportAssignment
     {
+        /// <summary>
+        /// 入库料口
+        /// </summary>
         Feedport=1,
+        /// <summary>
+        /// 出库料口
+        /// </summary>
         Dischargeport=2,
+        /// <summary>
+        /// 异常料口
+        /// </summary>
         AbnormalPort=3,
+    }
+
+    public enum StockerWorkingMode
+    {
+        /// <summary>
+        /// 取料模式
+        /// </summary>
+        FeedingMode=1,
+        /// <summary>
+        /// 放料模式
+        /// </summary>
+        BlowingMode=2,
+        /// <summary>
+        /// 回原点
+        /// </summary>
+        Home=3,
+        /// <summary>
+        /// 急停
+        /// </summary>
+        Stop=4,
+        /// <summary>
+        /// 取消急停
+        /// </summary>
+        CancelStop=5,
+        /// <summary>
+        /// 取消任务
+        /// </summary>
+        CancelQuest=6,
+        /// <summary>
+        /// 复位
+        /// </summary>
+        Reset=7,
+        /// <summary>
+        /// 移动模式
+        /// </summary>
+        MoveMode=8,
     }
 }

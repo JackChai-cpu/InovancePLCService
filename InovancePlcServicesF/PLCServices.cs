@@ -12,6 +12,7 @@ namespace InovancePLCService
         #region 字段
         public InovancePlc InovancePlc;
         List<short> errcode=new List<short>();
+        private System.Timers.Timer timer = new System.Timers.Timer();
         #endregion
 
         #region 属性
@@ -29,7 +30,7 @@ namespace InovancePLCService
         #region 事件
         public event geterrorcode GetErrorCode;
         #endregion
-        private System.Timers.Timer timer = new System.Timers.Timer();
+       
 
         
 
@@ -179,75 +180,7 @@ namespace InovancePLCService
 
         }
 
-        #region 取料区工作数据
-        /// <summary>
-        /// 设置工作模式
-        /// </summary>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        public bool SetWorkingMode(WorkingMode mode)
-        {
-            try
-            {
-                InovancePlc.PlcWriteWords(1070, new short[1] { (short)mode });
-                if (InovancePlc.PlcReadWords(1070, 1)[0] == (short)mode)
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                throw new Exception("Plc出错，请检查连接状态");
-            }
-        }
         
-        /// <summary>
-        /// 设置取料区工件大小
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public bool SetTakeMaterialWorkpieceType(TakeMaterialsWorkpieceType type)
-        {
-            try
-            {
-                InovancePlc.PlcWriteWords(1071, new short[1] { (short)type });
-                if (InovancePlc.PlcReadWords(1071, 1)[0] ==( short) type)
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                throw new Exception("Plc出错，请检查连接状态");
-            }
-        }
-
-        /// <summary>
-        /// 设置取料区工作数据
-        /// </summary>
-        /// <param name="workportAssignment"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public bool SetTakeMaterialsWorkportAssignment(TakeMaterialsWorkportAssignment workportAssignment)
-        {
-            try
-            {
-                InovancePlc.PlcWriteWords(1076, new short[1] { (short)workportAssignment });
-                if (InovancePlc.PlcReadWords(1076, 1)[0] == (short)workportAssignment)
-                {
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                throw new Exception("Plc出错，请检查连接状态");
-            }
-        }
-        #endregion
         /// <summary>
         /// 读取报警状态，通过计时器来读取
         /// </summary>
@@ -323,6 +256,218 @@ namespace InovancePLCService
                 throw new Exception("读取报警状态错误");
             }
 
+        }
+        #endregion
+
+        #region 私有方法，暂时不提供上层调用，需要时开放
+
+        #region 取料区工作数据
+        /// <summary>
+        /// 设置工作模式
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        private bool SetWorkingMode(WorkingMode mode)
+        {
+            return SetInt16tosingel(1070, (short)mode);
+        }
+
+        /// <summary>
+        /// 设置取料区工件类型
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private bool SetFeedingWorkpieceType(FeedingWorkpieceType type)
+        {
+            return SetInt16tosingel(1071, (short)type);
+        }
+
+
+        /// <summary>
+        /// 设置人工测高检测区放行信号
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool SetFeedingManualPuthighpass(bool value)
+        {
+            return SetBooltoSingel(1072, value);
+        }
+
+        /// <summary>
+        /// 设置自动测高检测区放行信号
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool SetFeedingAutoPuthighpass(bool value)
+        {
+            return SetBooltoSingel(1073, value);
+        }
+
+        /// <summary>
+        /// 设置人工入库口放行信号
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool SetFeedingManualPutStoragepass(bool value)
+        {
+            return SetBooltoSingel(1074, value);
+        }
+
+        /// <summary>
+        /// 设置自动入库口放行信号
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private bool SetFeedingAutoPutStoragepass(bool value)
+        {
+            return SetBooltoSingel(1075, value);
+        }
+
+        /// <summary>
+        /// 设置取料区工作数据
+        /// </summary>
+        /// <param name="workportAssignment"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private bool SetFeedingWorkportAssignment(FeedingWorkportAssignment workportAssignment)
+        {
+            return SetInt16tosingel(1076, (short)workportAssignment);
+        }
+
+
+        #endregion
+
+        #region 垛机工作数据
+        /// <summary>
+        /// 垛机工作给定模式
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        private bool StockerCmdMode(WorkingMode mode)
+        {
+            return SetInt16tosingel(1000, (short)mode);
+        }
+
+        /// <summary>
+        /// 设置垛机工作模式
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        private bool StockerCmdMode(StockerWorkingMode mode)
+        {
+            return SetInt16tosingel(1001, (short)mode);
+        }
+
+        /// <summary>
+        /// 设置库区号，0为单库区
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        private bool StockerCmdStoreID(StockerWorkingMode mode)
+        {
+            return SetInt16tosingel(1002, (short)mode);
+        }
+
+        /// <summary>
+        /// 设置自动取料垛机移动列号
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        private bool StockerCmdAutoGetColumn(int column)
+        {
+            return SetInt16tosingel(1003, (short)column);
+        }
+
+        /// <summary>
+        /// 设置自动取料垛机移动行号
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private bool StockerCmdAutoGetRow(int row)
+        {
+            return SetInt16tosingel(1004, (short)row);
+        }
+
+        /// <summary>
+        /// 设置自动取料货叉伸出位置
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private bool StockerCmdAutoGetFork(int position)
+        {
+            return SetInt16tosingel(1005, (short)position);
+        }
+
+        /// <summary>
+        /// 设置自动放料垛机移动列号
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        private bool StockerCmdAutoPutColumn(int column)
+        {
+            return SetInt16tosingel(1006, (short)column);
+        }
+
+        /// <summary>
+        /// 设置自动放料垛机移动行号
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private bool StockerCmdAutoPutRow(int row)
+        {
+            return SetInt16tosingel(1007, (short)row);
+        }
+
+        /// <summary>
+        /// 设置自动放料货叉伸出位置
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private bool StockerCmdAutoPutFork(int position)
+        {
+            return SetInt16tosingel(1008, (short)position);
+        }
+
+
+
+
+        #endregion
+
+
+
+
+        private bool SetBooltoSingel(int ads, bool value)
+        {
+            try
+            {
+                short res = Convert.ToInt16(value);
+                InovancePlc.PlcWriteWords(ads, new short[1] { res });
+                if (InovancePlc.PlcReadWords(ads, 1)[0] == res)
+                    return true;
+                return false;
+            }
+            catch
+            {
+                throw new Exception("plc错误，请检查连接状态");
+
+            }
+        }
+        private bool SetInt16tosingel(int ads, short value)
+        {
+            try
+            {
+                InovancePlc.PlcWriteWords(ads, new short[1] { (short)value });
+                if (InovancePlc.PlcReadWords(ads, 1)[0] == (short)value)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                throw new Exception("plc错误，请检查连接状态");
+            }
         }
         #endregion
     }
