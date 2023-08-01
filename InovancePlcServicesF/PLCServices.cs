@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -429,8 +430,75 @@ namespace InovancePLCService
             return SetInt16tosingel(1008, (short)position);
         }
 
+        /// <summary>
+        /// 设置手动取料垛机移动列号
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        private bool StockerCmdManualGetColumn(int column)
+        {
+            return SetInt16tosingel(1009, (short)column);
+        }
 
+        /// <summary>
+        /// 设置手动取料垛机移动行号
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private bool StockerCmdManulaGetRow(int row)
+        {
+            return SetInt16tosingel(1010, (short)row);
+        }
 
+        /// <summary>
+        /// 设置手动取料货叉伸出位置，根据行号进行确认，1向左，2向右
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private bool StockerCmdManualGetFork(int position)
+        {
+            return SetInt16tosingel(1011, (short)position);
+        }
+
+        /// <summary>
+        /// 设置手动放料垛机移动列号
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        private bool StockerCmdManualPutColumn(int column)
+        {
+            return SetInt16tosingel(1012, (short)column);
+        }
+
+        /// <summary>
+        /// 设置自动放料垛机移动行号
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private bool StockerCmdManualPutRow(int row)
+        {
+            return SetInt16tosingel(1013, (short)row);
+        }
+
+        /// <summary>
+        /// 设置自动放料货叉伸出位置
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private bool StockerCmdManualPutFork(int position)
+        {
+            return SetInt16tosingel(1014, (short)position);
+        }
+
+        /// <summary>
+        /// 货叉选择，PLC自主选择，每次只使用一个货叉，不为0时为软件指定货叉
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private bool StockerCmdForkData(int data)
+        {
+            return SetInt16tosingel(1015, (short)data);
+        }
 
         #endregion
 
