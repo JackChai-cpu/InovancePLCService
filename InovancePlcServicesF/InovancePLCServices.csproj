@@ -49,6 +49,7 @@
     <Compile Include="PLC报警实现\PlcAlarmInfo.cs" />
     <Compile Include="PLC报警实现\PLCExcpetion.cs" />
     <Compile Include="PLCServices.cs" />
+    <Compile Include="PlLC变量表\PLCVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="APIAndEnum\StandardModbusApi.cs" />
   </ItemGroup>

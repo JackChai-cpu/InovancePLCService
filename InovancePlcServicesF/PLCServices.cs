@@ -3,8 +3,10 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static InovancePLCService.PLCServices;
 
 namespace InovancePLCService
 {
@@ -12,8 +14,14 @@ namespace InovancePLCService
     {
         #region 字段
         public InovancePlc InovancePlc;
-        List<short> errcode=new List<short>();
+        private List<short> errcode=new List<short>();
+        private List<string> errmsg=new List<string>();
         private System.Timers.Timer timer = new System.Timers.Timer();
+        /// <summary>
+        /// 做访问属性或者变量使用
+        /// </summary>
+        private static object obj=new object();
+        //private System.Timers.Timer timer2 = new System.Timers.Timer();
         #endregion
 
         #region 属性
@@ -21,15 +29,19 @@ namespace InovancePLCService
         /// 当前报警代码，数量为0时无报警
         /// </summary>
         public List<short> Errcode { get => errcode; }
+        public List<string> Errmsg { get => errmsg; }
+
         #endregion
 
 
         #region 委托
         public delegate void geterrorcode(List<short> shorts);
+        public delegate void GeterrorcodeAndMsg(List<short> shorts, List<string> Errmsg);
         #endregion
 
         #region 事件
         public event geterrorcode GetErrorCode;
+        public event GeterrorcodeAndMsg GetErrorCodeAndMsg;
         #endregion
        
 
@@ -58,6 +70,11 @@ namespace InovancePLCService
             timer.AutoReset = true;
             timer.Enabled = false;
             timer.Start();
+            //timer2.Elapsed += new System.Timers.ElapsedEventHandler(GetAlarmStatusAndInfo);
+            //timer2.Interval = 500;
+            //timer2.AutoReset = true;
+            //timer2.Enabled = false;
+            //timer2.Start();
         }
 
         #region 公共方法
@@ -69,9 +86,12 @@ namespace InovancePLCService
         /// <returns></returns>
         public bool IsMaterialAtPort(int portId,int loc)
         {
-
-            return false;
+            if (portId < 0 || loc < 0|| portId>5 || loc >3)
+                throw new Exception("检查出入料口对应位置是否有物料函数索引错误");
+            int address = PLCVariable.MaterialAtPort[portId-1][loc-1];
+            return GetBoolSingel(address);
         }
+
 
         /// <summary>
         /// 出入料口均为3个work_position设计。根据上位机控制指令下发，驱动对应进出俩口将物料驱动移送至指定工作位置
@@ -211,15 +231,56 @@ namespace InovancePLCService
                     if (status3[i] != 0)
                         errorcode.Add((short)(i + 200));
                 }
-                GetErrorCode(errorcode);
                 errcode = errorcode;
+                errmsg = GetErrMsg(errorcode);
+                GetErrorCode(Errcode);
             }
             catch(Exception e)
             {
                 //throw new Exception("读取计时器状态错误");                
             }
         }
+        /// <summary>
+        /// 读取报警状态和报警信息，通过计时器来读取
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="elapsedEventArgs"></param>
+        public void GetAlarmStatusAndInfo(object sender, System.Timers.ElapsedEventArgs elapsedEventArgs)
+        {
+            try
+            {
+                List<short> errorcode = new List<short>();
 
+                short[] status1 = InovancePlc.PlcReadWords(2000, 123);
+                short[] status2 = InovancePlc.PlcReadWords(2123, 8);
+                short[] status3 = InovancePlc.PlcReadWords(3000, 30);
+                for (short i = 0; i < status1.Length; i++)
+                {
+                    if (status1[i] != 0)
+                        errorcode.Add((short)(i + 1));
+                }
+                for (short i = 0; i < status2.Length; i++)
+                {
+                    if (status2[i] != 0)
+                        errorcode.Add((short)(i + 124));
+                }
+                for (short i = 0; i < status3.Length; i++)
+                {
+                    if (status3[i] != 0)
+                        errorcode.Add((short)(i + 200));
+                }
+                errcode = errorcode;
+                errmsg = GetErrMsg(errorcode);
+
+                GetErrorCode(Errcode);                
+                GetErrorCodeAndMsg(Errcode, Errmsg);
+
+            }
+            catch (Exception e)
+            {
+                //throw new Exception("读取计时器状态错误");                
+            }
+        }
         /// <summary>
         /// 开放给上层读取报警状态
         /// </summary>
@@ -249,7 +310,7 @@ namespace InovancePLCService
                         errorcode.Add((short)(i + 200));
                 }
                 GetErrorCode(errorcode);
-                string sad=PlcAlarmInfo.AlarmInfo[1];
+                var res=GetErrMsg(errorcode);
                 return errorcode;
             }
             catch
@@ -502,7 +563,10 @@ namespace InovancePLCService
 
         #endregion
 
-
+        private bool GetBoolSingel(int address)
+        {
+            return Convert.ToBoolean( InovancePlc.PlcReadWords(address, 1)[0]);
+        }
 
 
         private bool SetBooltoSingel(int ads, bool value)
@@ -536,6 +600,21 @@ namespace InovancePLCService
             {
                 throw new Exception("plc错误，请检查连接状态");
             }
+        }
+
+        private List<string> GetErrMsg(List<short> errcode)
+        {
+            lock(obj)
+            {
+                errmsg.Clear();
+                for (int i = 0; i < errcode.Count; i++)
+                {
+                    string res = PlcAlarmInfo.AlarmInfo[errcode[i]];
+                    if (!errmsg.Contains(res))
+                        errmsg.Add(res);
+                }
+                return errmsg;
+            }            
         }
         #endregion
     }
