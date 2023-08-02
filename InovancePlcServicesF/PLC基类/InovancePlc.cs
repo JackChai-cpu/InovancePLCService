@@ -43,12 +43,12 @@ namespace InovancePLCService
                 if (string.IsNullOrEmpty(ip)) { IsConnect = false; return false; }
                 bool result = StandardModbusApi.Init_ETH_String(ip, nNetId, port);
                 if (result) { IsConnect = true; return true; }
-                else { IsConnect = false; return false; }
+                else { IsConnect = false; throw new Exception("未连接"); }
             }
             catch
             {
                 IsConnect = false;
-                return false;
+                throw new Exception("未连接，通讯异常");
             }
         }
 
@@ -64,7 +64,7 @@ namespace InovancePLCService
             catch
             {
                 IsConnect = false;
-                return false;
+                throw new Exception("关闭异常");
             }
         }
 
@@ -557,6 +557,14 @@ namespace InovancePLCService
             return (vaule & (ushort)Math.Pow(2, index)) > 0 ? true : false;
         }
 
+        /// <summary>
+        /// 将一个16位的的某一位设置为对应的状态
+        /// </summary>
+        /// <param name="vaule">需要设置的值</param>
+        /// <param name="index">第几个位，0-15</param>
+        /// <param name="status">设置的值</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public short SetshortBit(ushort vaule,int index,bool status)
         {
             if (index > 15 || index < 0)
@@ -566,6 +574,11 @@ namespace InovancePLCService
 
         }
 
+        /// <summary>
+        /// 将byte[]转化为二进制字符串
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public string ByteArrayTo2Base(Byte[] bytes)
         {
             // byte[]转为二进制字符串表示
