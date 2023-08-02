@@ -633,6 +633,7 @@ namespace InovancePLCService
 
             if (net == 1002)
             {
+                IsConnect = false;
                 throw new PLCExcpetion(Errcode.ErrNotConnect, "未连接");
             }
             else if (net == 1003)
@@ -653,6 +654,7 @@ namespace InovancePLCService
             }
             else if (net == 1007)
             {
+                IsConnect = false;
                 throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯错误");
             }
 

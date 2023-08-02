@@ -16,6 +16,9 @@ namespace InovancePLCService
         public InovancePlc InovancePlc;
         private List<short> errcode=new List<short>();
         private List<string> errmsg=new List<string>();
+        private PLCMoto travelMotor = new PLCMoto(0);
+        private PLCMoto liftMotor = new PLCMoto(1);
+        private PLCMoto forkMotor = new PLCMoto(2);
         private System.Timers.Timer timer = new System.Timers.Timer();
         /// <summary>
         /// 做访问属性或者变量使用
@@ -30,17 +33,20 @@ namespace InovancePLCService
         /// </summary>
         public List<short> Errcode { get => errcode; }
         public List<string> Errmsg { get => errmsg; }
+        public PLCMoto TravelMotor { get => travelMotor;  }
+        public PLCMoto LiftMotor { get => liftMotor;  }
+        public PLCMoto ForkMotor { get => forkMotor; }
 
         #endregion
 
 
         #region 委托
-        public delegate void geterrorcode(List<short> shorts);
+        public delegate void Geterrorcode(List<short> shorts);
         public delegate void GeterrorcodeAndMsg(List<short> shorts, List<string> Errmsg);
         #endregion
 
         #region 事件
-        public event geterrorcode GetErrorCode;
+        public event Geterrorcode GetErrorCode;
         public event GeterrorcodeAndMsg GetErrorCodeAndMsg;
         #endregion
        
@@ -94,7 +100,7 @@ namespace InovancePLCService
 
 
         /// <summary>
-        /// 出入料口均为3个work_position设计。根据上位机控制指令下发，驱动对应进出俩口将物料驱动移送至指定工作位置
+        /// 出入料口均为3个work_position设计。根据上位机控制指令下发，驱动对应进出料口将物料驱动移送至指定工作位置
         /// </summary>
         /// <param name="portId">出入料口的编号</param>
         /// <param name="loc">出入料口</param>

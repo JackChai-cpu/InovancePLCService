@@ -638,6 +638,7 @@ namespace InovancePLCService
 
             if(net == 2)
             {
+                IsConnect = false;
                 throw new PLCExcpetion(Errcode.ErrNotConnect, "未连接");
             }
             else if (net == 3)
@@ -654,7 +655,8 @@ namespace InovancePLCService
             }
             else if (net == 6)
             {
-                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");
+                IsConnect = false;
+                throw new PLCExcpetion(Errcode.ErrCommExcept, "通讯异常");                
             }
 
         }
