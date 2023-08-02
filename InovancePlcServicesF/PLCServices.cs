@@ -6,6 +6,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static InovancePLCService.PLCServices;
 
@@ -639,19 +640,74 @@ namespace InovancePLCService
         #endregion
 
         #region 电机控制类
-        public void MotoJogFwd(PLCMoto TravelMotor)
+        /// <summary>
+        /// 电机正转
+        /// </summary>
+        /// <param name="Motor"></param>
+        public void MotoJogFwd(PLCMoto Motor)
         {
-            if(!InovancePlc.PlcReadWordsBool(TravelMotor.Sevo))
-                InovancePlc.PlcWriteWords(TravelMotor.Sevo, new short[1] { 1 });
-
-            InovancePlc.PlcWriteWords(TravelMotor.JogFwd, new short[1] { 1 });
-            InovancePlc.PlcWriteWords(TravelMotor.JogRev, new short[1] { 0 });
-            InovancePlc.PlcWriteWords(TravelMotor.CSTR, new short[1] { 1 });
+            if(!InovancePlc.PlcReadWordsBool(Motor.Sevo))
+                InovancePlc.PlcWriteWords(Motor.Sevo, new short[1] { 1 });
+            Thread.Sleep(25);
+            InovancePlc.PlcWriteWords(Motor.JogFwd, new short[1] { 1 });
+            Thread.Sleep(50);
+            InovancePlc.PlcWriteWords(Motor.JogFwd, new short[1] { 0 });
         }
 
+        /// <summary>
+        /// 电机反转
+        /// </summary>
+        /// <param name="Motor"></param>
+        public void MotoJogRec(PLCMoto Motor)
+        {
+            if (!InovancePlc.PlcReadWordsBool(Motor.Sevo))
+                InovancePlc.PlcWriteWords(Motor.Sevo, new short[1] { 1 });
+            Thread.Sleep(25);
+            InovancePlc.PlcWriteWords(Motor.JogRev, new short[1] { 1 });
+            Thread.Sleep(50);
+            InovancePlc.PlcWriteWords(Motor.JogRev, new short[1] { 0 });
+        }
+
+        /// <summary>
+        /// 电机回零
+        /// </summary>
+        /// <param name="Motor"></param>
+        public void MotoHome(PLCMoto Motor)
+        {
+            if (!InovancePlc.PlcReadWordsBool(Motor.Sevo))
+                InovancePlc.PlcWriteWords(Motor.Sevo, new short[1] { 1 });
+            Thread.Sleep(25);
+            InovancePlc.PlcWriteWords(Motor.Home, new short[1] { 1 });
+            Thread.Sleep(50);
+            InovancePlc.PlcWriteWords(Motor.Home, new short[1] { 0 });
+        }
+        /// <summary>
+        /// 电机复位
+        /// </summary>
+        /// <param name="Motor"></param>
+        public void MotoReset(PLCMoto Motor)
+        {
+            if (!InovancePlc.PlcReadWordsBool(Motor.Sevo))
+                InovancePlc.PlcWriteWords(Motor.Sevo, new short[1] { 1 });
+            Thread.Sleep(25);
+            InovancePlc.PlcWriteWords(Motor.RES, new short[1] { 1 });
+            Thread.Sleep(50);
+            InovancePlc.PlcWriteWords(Motor.RES, new short[1] { 0 });
+        }
+        /// <summary>
+        /// 电机停止
+        /// </summary>
+        /// <param name="TravelMotor"></param>
         public void MotoStop(PLCMoto TravelMotor)
         {
+            InovancePlc.PlcWriteWords(TravelMotor.JogFwd, new short[1] { 0 });
+            InovancePlc.PlcWriteWords(TravelMotor.JogRev, new short[1] { 0 });
+            InovancePlc.PlcWriteWords(TravelMotor.CSTR, new short[1] { 0 });
+            InovancePlc.PlcWriteWords(TravelMotor.Home, new short[1] { 0 });
+            InovancePlc.PlcWriteWords(TravelMotor.RES, new short[1] { 0 });
             InovancePlc.PlcWriteWords(TravelMotor.HLT, new short[1] { 1 });
+            Thread.Sleep(50);
+            InovancePlc.PlcWriteWords(TravelMotor.HLT, new short[1] { 0 });
         }
 
 
