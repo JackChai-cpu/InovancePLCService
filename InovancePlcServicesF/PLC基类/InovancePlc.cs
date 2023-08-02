@@ -40,6 +40,7 @@ namespace InovancePLCService
         {
             try
             {
+                PlcClose();
                 if (string.IsNullOrEmpty(ip)) { IsConnect = false; return false; }
                 bool result = StandardModbusApi.Init_ETH_String(ip, nNetId, port);
                 if (result) { IsConnect = true; return true; }

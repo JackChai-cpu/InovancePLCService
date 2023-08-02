@@ -78,5 +78,9 @@ namespace InovancePLCService
         public int Auto { get => auto + index * 100; }
         public int Brake { get => brake + index * 100; }
         public int HomeDir { get => homeDir + index * 100; }
+
+
+
+
     }
 }

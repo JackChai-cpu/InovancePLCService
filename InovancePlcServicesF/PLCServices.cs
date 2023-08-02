@@ -638,6 +638,27 @@ namespace InovancePLCService
 
         #endregion
 
+        #region 电机控制类
+        public void MotoJogFwd(PLCMoto TravelMotor)
+        {
+            if(!InovancePlc.PlcReadWordsBool(TravelMotor.Sevo))
+                InovancePlc.PlcWriteWords(TravelMotor.Sevo, new short[1] { 1 });
+
+            InovancePlc.PlcWriteWords(TravelMotor.JogFwd, new short[1] { 1 });
+            InovancePlc.PlcWriteWords(TravelMotor.JogRev, new short[1] { 0 });
+            InovancePlc.PlcWriteWords(TravelMotor.CSTR, new short[1] { 1 });
+        }
+
+        public void MotoStop(PLCMoto TravelMotor)
+        {
+            InovancePlc.PlcWriteWords(TravelMotor.HLT, new short[1] { 1 });
+        }
+
+
+        #endregion
+
+
+
         private bool GetBoolSingel(int address)
         {
             return Convert.ToBoolean( InovancePlc.PlcReadWords(address, 1)[0]);
