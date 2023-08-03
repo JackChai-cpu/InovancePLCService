@@ -79,20 +79,61 @@ namespace InovancePLCService
             else
             {
                 InovancePlc = new H3UPLC(IP, Port, Netid);
-            }
-            errtimer.Elapsed+= new System.Timers.ElapsedEventHandler(GetAlarmStatus);
-            errtimer.Interval = 500;
-            errtimer.AutoReset = true;
-            errtimer.Enabled = false;
-            errtimer.Start();
-            motostatustimer.Elapsed += new System.Timers.ElapsedEventHandler(GetMotoStatus);
-            motostatustimer.Interval = 100;
-            motostatustimer.AutoReset = true;
-            motostatustimer.Enabled = false;
-            motostatustimer.Start();
+            }            
         }
 
         #region 公共方法
+
+        /// <summary>
+        /// 开启PLC通信服务
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool OpenService()
+        {
+            try
+            {
+                InovancePlc.PlcOpen();
+                //绑定获取PLC报警代码
+                errtimer.Elapsed += new System.Timers.ElapsedEventHandler(GetAlarmStatus);
+                errtimer.Interval = 500;
+                errtimer.AutoReset = true;
+                errtimer.Enabled = false;
+                errtimer.Start();
+                //绑定获取PLC电机参数
+                //motostatustimer.Elapsed += new System.Timers.ElapsedEventHandler(GetMotoStatus);
+                //motostatustimer.Interval = 100;
+                //motostatustimer.AutoReset = true;
+                //motostatustimer.Enabled = false;
+                //motostatustimer.Start();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("PLC服务打开失败");
+            }
+        }
+
+        /// <summary>
+        /// 关闭PLC服务
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool CloseService()
+        {
+            try
+            {
+                InovancePlc.PlcClose();
+                errtimer.Stop();
+                //motostatustimer.Stop();
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("PLC服务关闭出错");
+            }
+        }
+
         /// <summary>
         /// 检查出入料口对应位置是否有物料
         /// </summary>
@@ -653,9 +694,10 @@ namespace InovancePLCService
         /// <param name="Motor"></param>
         public void MotoJogFwd(PLCMoto Motor)
         {
-            if(!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
-                InovancePlc.PlcWriteWords(Motor.SevoAddress, new short[1] { 1 });
-            Thread.Sleep(25);
+            if (!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
+                throw new Exception("电机使能未打开");
+            if (!InovancePlc.PlcReadWordsBool(Motor.MovingAddress))
+                throw new Exception("电机正在运动中，请勿进行其他操作");
             InovancePlc.PlcWriteWords(Motor.JogFwdAddress, new short[1] { 1 });
             Thread.Sleep(50);
             InovancePlc.PlcWriteWords(Motor.JogFwdAddress, new short[1] { 0 });
@@ -668,11 +710,31 @@ namespace InovancePLCService
         public void MotoJogRec(PLCMoto Motor)
         {
             if (!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
-                InovancePlc.PlcWriteWords(Motor.SevoAddress, new short[1] { 1 });
-            Thread.Sleep(25);
+                throw new Exception("电机使能未打开");
+            if (!InovancePlc.PlcReadWordsBool(Motor.MovingAddress))
+                throw new Exception("电机正在运动中，请勿进行其他操作");
             InovancePlc.PlcWriteWords(Motor.JogRevAddress, new short[1] { 1 });
             Thread.Sleep(50);
             InovancePlc.PlcWriteWords(Motor.JogRevAddress, new short[1] { 0 });
+        }
+
+        /// <summary>
+        /// 电机定位启动（绝对）,需要给定位置信息
+        /// </summary>
+        /// <param name="Motor"></param>
+        /// <param name="position"></param>
+        /// <exception cref="Exception"></exception>
+        public void MotoAbsMovw(PLCMoto Motor,float position)
+        {
+            if (!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
+                throw new Exception("电机使能未打开");
+            if (!InovancePlc.PlcReadWordsBool(Motor.MovingAddress))
+                throw new Exception("电机正在运动中，请勿进行其他操作");
+            InovancePlc.PlcWriteFloats(Motor.PositionAddress, new float[1] { position });
+
+            InovancePlc.PlcWriteWords(Motor.CSTRAddress, new short[1] { 1 });
+            Thread.Sleep(50);
+            InovancePlc.PlcWriteWords(Motor.CSTRAddress, new short[1] { 0 });
         }
 
         /// <summary>
@@ -682,8 +744,9 @@ namespace InovancePLCService
         public void MotoHome(PLCMoto Motor)
         {
             if (!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
-                InovancePlc.PlcWriteWords(Motor.SevoAddress, new short[1] { 1 });
-            Thread.Sleep(25);
+                throw new Exception("电机使能未打开");
+            if (!InovancePlc.PlcReadWordsBool(Motor.MovingAddress))
+                throw new Exception("电机正在运动中，请勿进行其他操作");
             InovancePlc.PlcWriteWords(Motor.HomeAddress, new short[1] { 1 });
             Thread.Sleep(50);
             InovancePlc.PlcWriteWords(Motor.HomeAddress, new short[1] { 0 });
@@ -694,9 +757,10 @@ namespace InovancePLCService
         /// <param name="Motor"></param>
         public void MotoReset(PLCMoto Motor)
         {
-            if (!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
-                InovancePlc.PlcWriteWords(Motor.SevoAddress, new short[1] { 1 });
-            Thread.Sleep(25);
+            //if (!InovancePlc.PlcReadWordsBool(Motor.SevoAddress))
+            //    throw new Exception("电机使能未打开");
+            //if (!InovancePlc.PlcReadWordsBool(Motor.MovingAddress))
+            //    throw new Exception("电机正在运动中，请勿进行其他操作");
             InovancePlc.PlcWriteWords(Motor.RESAddress, new short[1] { 1 });
             Thread.Sleep(50);
             InovancePlc.PlcWriteWords(Motor.RESAddress, new short[1] { 0 });
@@ -737,6 +801,17 @@ namespace InovancePLCService
                 pLCMotos[i].PositionVaule = GetRealData(pLCMotos[i].PositionAddress);
                 pLCMotos[i].UppermotortravelVaule = GetRealData(pLCMotos[i].UppermotortravelAddress);
                 pLCMotos[i].LowermotortravelVaule = GetRealData(pLCMotos[i].LowermotortravelAddress);
+
+                pLCMotos[i].EncoderDirectionVaule = GetBoolSingel(pLCMotos[i].EncoderDirectionAddress);
+                pLCMotos[i].HENDVaule = GetBoolSingel(pLCMotos[i].HENDAddress);
+                pLCMotos[i].PENDVaule = GetBoolSingel(pLCMotos[i].PENDAddress);
+                pLCMotos[i].MovingVaule = GetBoolSingel(pLCMotos[i].MovingAddress);
+                pLCMotos[i].SvoingVaule = GetBoolSingel(pLCMotos[i].SvoingAddress);
+
+                pLCMotos[i].SevoVaule = GetBoolSingel(pLCMotos[i].SevoAddress);
+                pLCMotos[i].AutoVaule = GetBoolSingel(pLCMotos[i].AutoAddress);
+                pLCMotos[i].BrakeVaule = GetBoolSingel(pLCMotos[i].BrakeAddress);
+                pLCMotos[i].HomeDirVaule = GetBoolSingel(pLCMotos[i].HomeDirAddress);
             }
         }
 

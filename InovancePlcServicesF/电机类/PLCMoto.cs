@@ -62,11 +62,11 @@ namespace InovancePLCService
         /// 返回的为实数类型
         /// </summary>
         private float speedMonitorVaule;
-        private int encoderDirectionVaule;
-        private int hENDVaule;
-        private int pENDVaule;
-        private int movingVaule;
-        private int svoingVaule;
+        private bool encoderDirectionVaule;
+        private bool hENDVaule;
+        private bool pENDVaule;
+        private bool movingVaule;
+        private bool svoingVaule;
 
 
         private float overAccVaule;
@@ -75,10 +75,10 @@ namespace InovancePLCService
         private float positionVaule;
         private float uppermotortravelVaule;
         private float lowermotortravelVaule;
-        private int sevoVaule;
-        private int autoVaule;
-        private int brakeVaule;
-        private int homeDirVaule;
+        private bool sevoVaule;
+        private bool autoVaule;
+        private bool brakeVaule;
+        private bool homeDirVaule;
         #endregion
 
 
@@ -136,23 +136,23 @@ namespace InovancePLCService
         /// <summary>
         /// 伺服当前运行方向
         /// </summary>
-        public int EncoderDirectionVaule { get => encoderDirectionVaule; set => encoderDirectionVaule = value; }
+        public bool EncoderDirectionVaule { get => encoderDirectionVaule; set => encoderDirectionVaule = value; }
         /// <summary>
         /// 伺服回零完成信号
         /// </summary>
-        public int HENDVaule { get => hENDVaule; set => hENDVaule = value; }
+        public bool HENDVaule { get => hENDVaule; set => hENDVaule = value; }
         /// <summary>
         /// 伺服定位完成信号
         /// </summary>
-        public int PENDVaule { get => pENDVaule; set => pENDVaule = value; }
+        public bool PENDVaule { get => pENDVaule; set => pENDVaule = value; }
         /// <summary>
         /// 伺服移动中
         /// </summary>
-        public int MovingVaule { get => movingVaule; set => movingVaule = value; }
+        public bool MovingVaule { get => movingVaule; set => movingVaule = value; }
         /// <summary>
         /// 上电反馈
         /// </summary>
-        public int SvoingVaule { get => svoingVaule; set => svoingVaule = value; }
+        public bool SvoingVaule { get => svoingVaule; set => svoingVaule = value; }
         /// <summary>
         /// 伺服加速度
         /// </summary>
@@ -180,18 +180,18 @@ namespace InovancePLCService
         /// <summary>
         /// 伺服使能状态
         /// </summary>
-        public int SevoVaule { get => sevoVaule; set => sevoVaule = value; }
+        public bool SevoVaule { get => sevoVaule; set => sevoVaule = value; }
         /// <summary>
         /// 伺服工作模式，手自动
         /// </summary>
-        public int AutoVaule { get => autoVaule; set => autoVaule = value; }
+        public bool AutoVaule { get => autoVaule; set => autoVaule = value; }
         /// <summary>
         /// 伺服抱闸控制
         /// </summary>
-        public int BrakeVaule { get => brakeVaule; set => brakeVaule = value; }
+        public bool BrakeVaule { get => brakeVaule; set => brakeVaule = value; }
         /// <summary>
         /// 回零方向，true正方向寻炸零点
         /// </summary>
-        public int HomeDirVaule { get => homeDirVaule; set => homeDirVaule = value; }
+        public bool HomeDirVaule { get => homeDirVaule; set => homeDirVaule = value; }
     }
 }
