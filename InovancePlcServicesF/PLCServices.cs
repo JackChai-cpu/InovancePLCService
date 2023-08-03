@@ -737,6 +737,17 @@ namespace InovancePLCService
                 pLCMotos[i].PositionVaule = GetRealData(pLCMotos[i].PositionAddress);
                 pLCMotos[i].UppermotortravelVaule = GetRealData(pLCMotos[i].UppermotortravelAddress);
                 pLCMotos[i].LowermotortravelVaule = GetRealData(pLCMotos[i].LowermotortravelAddress);
+
+                pLCMotos[i].EncoderDirectionVaule = GetBoolSingel(pLCMotos[i].EncoderDirectionAddress);
+                pLCMotos[i].HENDVaule = GetBoolSingel(pLCMotos[i].HENDAddress);
+                pLCMotos[i].PENDVaule = GetBoolSingel(pLCMotos[i].PENDAddress);
+                pLCMotos[i].MovingVaule = GetBoolSingel(pLCMotos[i].MovingAddress);
+                pLCMotos[i].SvoingVaule = GetBoolSingel(pLCMotos[i].SvoingAddress);
+
+                pLCMotos[i].SevoVaule = GetBoolSingel(pLCMotos[i].SevoAddress);
+                pLCMotos[i].AutoVaule = GetBoolSingel(pLCMotos[i].AutoAddress);
+                pLCMotos[i].BrakeVaule = GetBoolSingel(pLCMotos[i].BrakeAddress);
+                pLCMotos[i].HomeDirVaule = GetBoolSingel(pLCMotos[i].HomeDirAddress);
             }
         }
 
